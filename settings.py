@@ -78,6 +78,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'rideShare.urls'
 
 TEMPLATE_DIRS = (
+
+    "/Users/jdrosdeck/Sites/rideShareTemplates"
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -93,6 +95,7 @@ INSTALLED_APPS = (
     'rideShare.routes',
     'rideShare.myMessages',
     'rideShare.vehicle',
+    'rideShare.common',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
 )

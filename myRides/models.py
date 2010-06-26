@@ -5,11 +5,17 @@ from rideShare.routes.models import Route
 
 class University(models.Model):
     name = models.CharField(max_length=30)
+    
+    def __unicode__(self):
+        return u'%s' % (self.name)
 
 class Passenger(models.Model):
     user = models.ForeignKey(User)
     university = models.ForeignKey(University)
-
+    
+    def __unicode__(self):
+        return u'%s' % (self.user.username)
+    
 # This represents a model of a host of a ride. Basically a User,
 # Vehicle, and university
 class Host(models.Model):
