@@ -13,6 +13,7 @@ class Route(models.Model):
     waypoints = models.ManyToManyField(Waypoint)
     totalMiles =  models.FloatField()
     gallonsGas = models.FloatField()
+    leavingDate = models.DateTimeField(blank=True, null=True)
 
     def __unicode__(self):
-        return u'%s - %s' % (self.startAddress, self.endAddress)
+        return u'%s - %s (Leaves on <%s>)' % (self.startAddress, self.endAddress, self.leavingDate)

@@ -7,8 +7,36 @@ from django.views.generic.simple import direct_to_template
 from django.shortcuts import render_to_response
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 from rideShare.common.forms import RegistrationForm, loginForm
 from rideShare.myRides.models import Passenger, University
+from django.contrib.sessions.models import Session
+
+def login_View(request):
+    if request.method == 'POST':
+        form = loginForm(request.POST)
+        
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            passphrase = form.cleaned_data['passphrase']
+            user = authenticate(username=email, password=passphrase)
+            if user is not None:
+                if user.is_active:
+                    #direct to home
+                    login(request, user)
+                    request.session['username'] = email
+                    return HttpResponseRedirect('/home/')
+                else:
+                    return HttpResponse("Your account has been disabled")
+            else:
+                return HttpResponse("Your username and password are incorrect")
+    else:
+        form = loginForm()
+    return direct_to_template(request, 'login.html', { 'form' : form })
+            
+def logout_View(request):
+    logout(request)
+    return HttpResponse("Logged Out")
 
 def register(request):
     if request.method == 'POST':
@@ -30,6 +58,10 @@ def register(request):
                 passenger.save()
                 user.is_staff = False
                 user.save()
+                user = authenticate(username=email, password=passphrase)
+                login(request, user)
+                request.session['username'] = email
+                return HttpResponseRedirect('/home/')
             else:
                 form = RegistrationForm()
                 return direct_to_template(request, 'register.html', { 'nameError' : True, 'form' : form })
@@ -37,3 +69,4 @@ def register(request):
     else:
         form = RegistrationForm()
     return direct_to_template(request, 'register.html', { 'form' : form})
+

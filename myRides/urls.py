@@ -1,8 +1,6 @@
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('',
-                     (r'^profiles/$', 'loadProfile'),
-                     (r'^login/$', 'login'),
-
-
+urlpatterns = patterns('rideShare.myRides.views',
+                     (r'^home/$', 'home_View'),
+                    
 )
