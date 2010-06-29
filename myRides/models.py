@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from rideShare.vehicle.models import autoModel
+from rideShare.vehicle.models import Car
 from rideShare.routes.models import Route
 
 class University(models.Model):
@@ -9,29 +9,25 @@ class University(models.Model):
     def __unicode__(self):
         return u'%s' % (self.name)
 
-class Passenger(models.Model):
+class Users(models.Model):
     user = models.ForeignKey(User)
     university = models.ForeignKey(University)
-    
+    car = models.ForeignKey(Car)
+
     def __unicode__(self):
         return u'%s' % (self.user.username)
     
-# This represents a model of a host of a ride. Basically a User,
-# Vehicle, and university
-class Host(models.Model):
-    passenger = models.ForeignKey(Passenger)
-    vehicle = models.ForeignKey(autoModel)
+class TripPassengers(models.Model):
+    passenger = models.ForeignKey(Users)
 
     def __unicode__(self):
-        return u'%s' % (self.passenger.user.username)
-    
+        return u'%s' % (self.passenger.Users.user.username)
 
-#This represents a model of an individual ride. With a host and participants
-class Ride(models.Model):
-    rideHost = models.ForeignKey(Host)
-    rideParticipants = models.ManyToManyField(Passenger)
+class Trip(models.Model):
+    host = models.ForeignKey(Users)
     trip = models.ForeignKey(Route)
-    
+    passengers = models.ForeignKey(TripPassengers)
+
     def __unicode__(self):
-        return u'%s, %s' % (self.rideHost.passenger.user.username, self.trip.startAddress)
+        return u'Host: %s, Start: %s, End: %s' % (self.host.Users.user.username, self.trip.startAddress, self.trip.endAddress) 
 

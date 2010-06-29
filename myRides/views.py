@@ -91,15 +91,17 @@ def home_View(request):
                             trip.save()
                             vehicle = autoModel.objects.filter(manufacturer=autoMaker.objects.filter(name=manufacturer), name=carName)
                             
-
+                            #Grab the user out of the db
                             passenger = Passenger.objects.filter(user=rideHost)
+                            #Get the university data from the passenger
                             university = passenger[0].university
                             
                             
-                            host = passenger[0]
-                            newHost = Host(passenger=host, vehicle=vehicle[0])
+                            #Make the user into a host
+                            newHost = Host(passenger=passenger[0], vehicle=vehicle[0])
                             newHost.save()
                             
+                            #Create the ride, with a host and trip
                             newRide = Ride(rideHost=newHost, trip=trip)
 
                             newRide.save()

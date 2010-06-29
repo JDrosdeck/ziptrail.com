@@ -1,6 +1,6 @@
-from rideShare.vehicle.models import autoMaker, autoModel
+from rideShare.vehicle.models import Car
 
 from django.contrib import admin
 
-admin.site.register(autoMaker)
-admin.site.register(autoModel)
+admin.site.register(Car)
+

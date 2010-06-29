@@ -3,18 +3,8 @@
 
 from django.db import models
 
-
-class autoMaker(models.Model):
-    name = models.CharField(max_length=20)
-    
-    def __unicode__(self):
-        return u'%s' % (self.name)
-
-class autoModel(models.Model):
-    manufacturer = models.ForeignKey(autoMaker)
-    name = models.CharField(max_length = 10)
+class Car(models.Model):
     seats = models.IntegerField(max_length = 8)
-    mpg = models.IntegerField(max_length=3)
 
     def __unicode__(self):
         return u'%s' % (self.manufacturer)
