@@ -6,9 +6,9 @@ from django.contrib.sessions.models import Session
 from django import forms
 
 #Database models
-from rideShare.myRides.models import Host, Ride, Passenger
+from rideShare.myRides.models import Users, TripPassengers, Trip
 from rideShare.routes.models import Waypoint, Route
-from rideShare.vehicle.models import autoMaker, autoModel
+from rideShare.vehicle.models import Car
 from rideShare.common.forms import loginForm
 from rideShare.myRides.forms import tripForm
 from django.contrib.auth.models import User
@@ -28,8 +28,11 @@ def home_View(request):
         #get all the rides that their apart of as a passenger
         username = request.session['username']
         
-        myRides = Ride.objects.filter(rideParticipants__id__exact=User.objects.filter(username=username)[0].id)
-        
+
+        user = User.objects.get(username=username)
+        myRides = Trip.objects.filter(passengers__id__exact=Users.objects.filter(user=user))
+        print len(myRides)
+
         #Check to see if they've added a new ride.
         if request.method =='POST':
             form = tripForm(request.POST)
@@ -39,12 +42,8 @@ def home_View(request):
                 endAddress = form.cleaned_data['endAddress']
                 leavingDate = form.cleaned_data['leavingDate']
                 #Car information
-                manufacturer = form.cleaned_data['manufacturer']
-                carName = form.cleaned_data['name']
                 freeSeats = form.cleaned_data['freeSeats']
-                mpg = form.cleaned_data['mpg']
                 
-
                 # We can now grab the data from google maps
                 baseUrl= "http://maps.google.com/maps/api/directions/json?origin="
                 cleanedStartAddress = re.sub(' ', ',', startAddress)
@@ -83,27 +82,18 @@ def home_View(request):
                                 duration = duration['text']
 
                             #Save the full data to the db
-                            rideHost = User.objects.filter(username=request.session['username'])
-                            
-                            
-                            trip = Route(startAddress=startAddress, endAddress=endAddress, totalMiles=32, gallonsGas=32)
+                            host = User.objects.get(username=request.session['username'])
+                            host = Users.objects.get(user=host)
+                            host.car=Car.objects.filter(seats=freeSeats)[0]
+                            host.save()
+                                         
+                            route = Route(startAddress=startAddress, endAddress=endAddress, totalMiles=32, gallonsGas=32)
 
-                            trip.save()
-                            vehicle = autoModel.objects.filter(manufacturer=autoMaker.objects.filter(name=manufacturer), name=carName)
-                            
-                            #Grab the user out of the db
-                            passenger = Passenger.objects.filter(user=rideHost)
-                            #Get the university data from the passenger
-                            university = passenger[0].university
-                            
-                            
-                            #Make the user into a host
-                            newHost = Host(passenger=passenger[0], vehicle=vehicle[0])
-                            newHost.save()
-                            
-                            #Create the ride, with a host and trip
-                            newRide = Ride(rideHost=newHost, trip=trip)
 
+                            route.save()
+                                                                     
+                            #Create a new Trip, 
+                            newRide = Trip(host=host, trip=route)
                             newRide.save()
                             
 

@@ -9,7 +9,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from rideShare.common.forms import RegistrationForm, loginForm
-from rideShare.myRides.models import Passenger, University
+from rideShare.myRides.models import Users, University
 from django.contrib.sessions.models import Session
 
 def login_View(request):
@@ -54,8 +54,8 @@ def register(request):
                 #create the passenger (everyone gets defaulted to a passenger)
                 university = University(name=university)
                 university.save()
-                passenger = Passenger(user=user, university=university)
-                passenger.save()
+                newUser = Users(user=user, university=university)
+                newUser.save()
                 user.is_staff = False
                 user.save()
                 user = authenticate(username=email, password=passphrase)

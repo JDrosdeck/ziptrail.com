@@ -7,4 +7,4 @@ class Car(models.Model):
     seats = models.IntegerField(max_length = 8)
 
     def __unicode__(self):
-        return u'%s' % (self.manufacturer)
+        return u'%s' % (self.seats)

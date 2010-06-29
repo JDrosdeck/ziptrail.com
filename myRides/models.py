@@ -12,7 +12,7 @@ class University(models.Model):
 class Users(models.Model):
     user = models.ForeignKey(User)
     university = models.ForeignKey(University)
-    car = models.ForeignKey(Car)
+    car = models.ForeignKey(Car, blank=True, null=True)
 
     def __unicode__(self):
         return u'%s' % (self.user.username)
@@ -21,13 +21,13 @@ class TripPassengers(models.Model):
     passenger = models.ForeignKey(Users)
 
     def __unicode__(self):
-        return u'%s' % (self.passenger.Users.user.username)
+        return u'%s' % (self.passenger.user.username)
 
 class Trip(models.Model):
     host = models.ForeignKey(Users)
     trip = models.ForeignKey(Route)
-    passengers = models.ForeignKey(TripPassengers)
+    passengers = models.ManyToManyField(TripPassengers, blank=True, null=True)
 
     def __unicode__(self):
-        return u'Host: %s, Start: %s, End: %s' % (self.host.Users.user.username, self.trip.startAddress, self.trip.endAddress) 
+        return u'Host: %s, Start: %s, End: %s' % (self.host.user.username, self.trip.startAddress, self.trip.endAddress) 
 
