@@ -25,7 +25,7 @@ def login_View(request):
                     #direct to home
                     login(request, user)
                     request.session['username'] = email
-                    return HttpResponseRedirect('/home/')
+                    return HttpResponseRedirect('/rides/home/')
                 else:
                     return HttpResponse("Your account has been disabled")
             else:
@@ -61,7 +61,7 @@ def register(request):
                 user = authenticate(username=email, password=passphrase)
                 login(request, user)
                 request.session['username'] = email
-                return HttpResponseRedirect('/home/')
+                return HttpResponseRedirect('/rides/home/')
             else:
                 form = RegistrationForm()
                 return direct_to_template(request, 'register.html', { 'nameError' : True, 'form' : form })

@@ -107,10 +107,9 @@ def home_View(request):
         form = loginForm()
         return direct_to_template(request, 'login.html', { 'form' : form })
 
-def removeFromRide(request, id):
-    print id
+def removePassengerFromRide(request, id):
     # id presents the ID of the TRIP
-    #we need to remove the requested user from being a passenger in the trip
+    # we need to remove the requested user from being a passenger in the trip
     if request.user.is_authenticated():
         username = request.session['username']
 
@@ -132,3 +131,20 @@ def removeFromRide(request, id):
         
         return HttpResponse("You don't seem to be apart of this ride anyway")
    
+def addPassengerToRide(request, id):
+    # id represents the ID of the TRIP
+    # We need to add the requested user to be a passenger in the trip
+    if request.user.is_authenticated():
+        username = request.session['username']
+
+        user = User.objects.filter(username=username)
+        currentUser = Users.objects.get(user=user)
+        passenger = TripPassengers.objects.get(id=currentUser.id)
+
+        trip = Trip.objects.filter(id=id)
+        if len(trip) > 0:
+            trip[0].passengers.add(passenger)
+            trip[0].save()
+            
+        return HttpResponse("Added passenger to ride")
+        
