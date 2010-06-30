@@ -107,3 +107,28 @@ def home_View(request):
         form = loginForm()
         return direct_to_template(request, 'login.html', { 'form' : form })
 
+def removeFromRide(request, id):
+    print id
+    # id presents the ID of the TRIP
+    #we need to remove the requested user from being a passenger in the trip
+    if request.user.is_authenticated():
+        username = request.session['username']
+
+        user = User.objects.filter(username=username)
+        currentUser = Users.objects.get(user=user)
+        passenger = TripPassengers.objects.get(id=currentUser.id)
+        print passenger
+
+        if passenger:
+        #Select from Trip where TripPassenger = username and id = given id
+            trip = Trip.objects.filter(id=id, passengers__id__exact=Users.objects.get(user=user).id)
+            print len(trip)
+            if len(trip) > 0:
+                trip[0].passengers.remove(passenger)
+                trip[0].save()
+                print trip[0].passengers.all()
+                
+                return HttpResponse("Removed passenger from ride")
+        
+        return HttpResponse("You don't seem to be apart of this ride anyway")
+   
