@@ -19,6 +19,7 @@ import simplejson
 import datetime
 
 # This is going to show a users home, and allow them to create a ride
+
 # or join a ride
 def home_View(request):
   
@@ -32,6 +33,9 @@ def home_View(request):
         user = User.objects.get(username=username)
         myRides = Trip.objects.filter(passengers__id__exact=Users.objects.filter(user=user))
         print len(myRides)
+        
+        allRides = Trip.objects.filter().exclude(passengers__id__exact=Users.objects.filter(user=user))
+        print len(allRides)
 
         #Check to see if they've added a new ride.
         if request.method =='POST':
@@ -89,7 +93,6 @@ def home_View(request):
                                          
                             route = Route(startAddress=startAddress, endAddress=endAddress, totalMiles=32, gallonsGas=32)
 
-
                             route.save()
                                                                      
                             #Create a new Trip, 
@@ -101,7 +104,7 @@ def home_View(request):
                         return HttpResponse("Start or End address not valid.")
 
         form = tripForm()
-        return direct_to_template(request, 'home.html', { 'rides' : myRides, 'form' : form })
+        return direct_to_template(request, 'home.html', { 'rides' : myRides, 'form' : form, 'availableRides' : allRides })
 
     else:
         form = loginForm()
