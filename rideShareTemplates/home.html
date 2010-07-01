@@ -1,0 +1,48 @@
+<html>
+<head><title>Your rideShare homepage </title></head>
+<body>
+
+<h1>Rides coming up..</h1>
+{% if rides %}
+
+     {% for ride in rides %}
+
+       Heading To:   {{ ride.trip }} <a href="/rides/remove/{{ride.id}}"> Remove </a><br>
+
+     {% endfor %}
+
+{% else %}
+
+     You don't have any rides
+
+{% endif %}
+
+<br><br><br><br>
+<h1>Available Rides </h1>
+{% if availableRides %}
+
+     {% for ride in availableRides %}
+
+        Ride To : {{ ride.trip }} <a href="/rides/add/{{ride.id}}"> Add </a> <br>
+
+     {% endfor %}
+
+
+{% else %}
+
+     There aren't any rides available
+
+{% endif %}
+
+
+<h1>Create a Trip</h1>
+
+<form action ="/rides/home/" method="post">
+{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Submit"/>
+</form>
+
+
+</body>
+</html>

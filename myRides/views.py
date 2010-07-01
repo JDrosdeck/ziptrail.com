@@ -98,7 +98,8 @@ def home_View(request):
                             #Create a new Trip, 
                             newRide = Trip(host=host, trip=route)
                             newRide.save()
-                            
+                            print "ADFADFSDFSDFDSF"
+                            return HttpResponseRedirect('/rides/home')
 
                     else:
                         return HttpResponse("Start or End address not valid.")
@@ -130,7 +131,7 @@ def removePassengerFromRide(request, id):
                 trip[0].save()
                 print trip[0].passengers.all()
                 
-                return HttpResponse("Removed passenger from ride")
+                return HttpResponseRedirect('/rides/home/')
         
         return HttpResponse("You don't seem to be apart of this ride anyway")
    
@@ -149,5 +150,10 @@ def addPassengerToRide(request, id):
             trip[0].passengers.add(passenger)
             trip[0].save()
             
-        return HttpResponse("Added passenger to ride")
+            return HttpResponseRedirect('/rides/home/')
         
+        else:
+            return HttpResponse("You're already apart of this ride")
+
+    else:
+        return HttpResponseRedirect('/login/')
