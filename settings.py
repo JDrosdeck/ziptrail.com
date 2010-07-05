@@ -99,6 +99,8 @@ INSTALLED_APPS = (
     'rideShare.myMessages',
     'rideShare.vehicle',
     'rideShare.common',
+    'rideShare.zip',
+    'rideShare.search',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
 )

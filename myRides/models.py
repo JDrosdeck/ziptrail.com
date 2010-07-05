@@ -2,9 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from rideShare.vehicle.models import Car
 from rideShare.routes.models import Route
+from rideShare.zip.models import ZipCode
 
 class University(models.Model):
     name = models.CharField(max_length=30)
+    zip = models.ForeignKey(ZipCode)
+
     
     def __unicode__(self):
         return u'%s' % (self.name)

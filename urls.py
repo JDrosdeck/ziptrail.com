@@ -10,6 +10,8 @@ urlpatterns = patterns('',
     # Example:
     (r'^', include('rideShare.common.urls')),
     (r'^rides/', include('rideShare.myRides.urls')),
+    (r'^load/', include('rideShare.zip.urls')),
+    (r'^', include('rideShare.search.urls')),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:

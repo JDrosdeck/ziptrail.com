@@ -10,9 +10,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from rideShare.common.forms import RegistrationForm, loginForm
 from rideShare.myRides.models import Users, University
+from rideShare.zip.models import ZipCode
+
 from django.contrib.sessions.models import Session
 
+
 def login_View(request):
+
     if request.method == 'POST':
         form = loginForm(request.POST)
         
@@ -49,12 +53,14 @@ def register(request):
             #make sure the useremail dosen't exist
             dbUsers = User.objects.filter(username=email)
             if len(dbUsers) == 0:
-                #create the user
-                user = User.objects.create_user(email, email, passphrase)
+                              
                 #create the passenger (everyone gets defaulted to a passenger)
-                university = University(name=university)
-                university.save()
-                newUser = Users(user=user, university=university)
+                university = University.objects.get(name__iexact=university)
+               
+                # create the user
+                user = User.objects.create_user(email,email,passphrase)
+
+                newUser = Users(user=user, university = university)
                 newUser.save()
                 user.is_staff = False
                 user.save()

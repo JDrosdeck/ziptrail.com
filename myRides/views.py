@@ -9,6 +9,8 @@ from django import forms
 from rideShare.myRides.models import Users, TripPassengers, Trip
 from rideShare.routes.models import Waypoint, Route
 from rideShare.vehicle.models import Car
+from rideShare.zip.models import ZipCode
+
 from rideShare.common.forms import loginForm
 from rideShare.myRides.forms import tripForm
 from django.contrib.auth.models import User
@@ -43,7 +45,9 @@ def home_View(request):
             if form.is_valid():
                 #The trip information
                 startAddress = form.cleaned_data['startAddress']
+                startZip = form.cleaned_data['startZip']
                 endAddress = form.cleaned_data['endAddress']
+                endZip = form.cleaned_data['endZip']
                 leavingDate = form.cleaned_data['leavingDate']
                 #Car information
                 freeSeats = form.cleaned_data['freeSeats']
@@ -91,14 +95,12 @@ def home_View(request):
                             host.car=Car.objects.filter(seats=freeSeats)[0]
                             host.save()
                                          
-                            route = Route(startAddress=startAddress, endAddress=endAddress, totalMiles=32, gallonsGas=32)
-
+                            route = Route(startAddress=startAddress, startZip=startZip, endAddress=endAddress, endZip=endZip, totalMiles=32, gallonsGas=32)
                             route.save()
                                                                      
                             #Create a new Trip, 
                             newRide = Trip(host=host, trip=route)
                             newRide.save()
-                            print "ADFADFSDFSDFDSF"
                             return HttpResponseRedirect('/rides/home')
 
                     else:
