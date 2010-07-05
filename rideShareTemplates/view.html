@@ -1,0 +1,14 @@
+<html>
+<head><title>Trip {{ trip.id }} </title></head>
+<body>
+
+<h1>Host :</h1> {{ trip.host.user.username }} <br>
+<h1>Passengers : </h1> {% for passenger in trip.passengers.all %}
+{{ passenger.passenger.user.username }} <br>
+{% endfor %}
+
+
+
+
+</body>
+</html>

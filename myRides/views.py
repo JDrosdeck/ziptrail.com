@@ -92,10 +92,11 @@ def home_View(request):
                             #Save the full data to the db
                             host = User.objects.get(username=request.session['username'])
                             host = Users.objects.get(user=host)
-                            host.car=Car.objects.filter(seats=freeSeats)[0]
+                            host.car=Car.objects.get(seats=freeSeats)
                             host.save()
-                                         
-                            route = Route(startAddress=startAddress, startZip=startZip, endAddress=endAddress, endZip=endZip, totalMiles=32, gallonsGas=32)
+                            
+
+                            route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), totalMiles=32, gallonsGas=32)
                             route.save()
                                                                      
                             #Create a new Trip, 
@@ -159,3 +160,14 @@ def addPassengerToRide(request, id):
 
     else:
         return HttpResponseRedirect('/login/')
+
+def viewRide(request, id):
+    # id represents the ID of the TRIP
+    # We want to show detailed information about the trip
+    # ie. google map. Waypoints, people involved
+    
+    matchedTrip = Trip.objects.get(id=id)
+    print matchedTrip.passengers
+
+
+    return direct_to_template(request, 'view.html', { 'trip' : matchedTrip })

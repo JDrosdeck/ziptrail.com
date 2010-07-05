@@ -1,0 +1,32 @@
+<html>
+<head><title>Search for rides </title></head>
+<body>
+ 
+  {% if form %}
+
+  <form action="/search/" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type = "submit" value = "Submit" />
+  </form>
+  {% endif %}  
+
+
+  {% if results %}
+
+     {% for result in results %}
+
+        {{ result }}
+
+     {% endfor %}
+
+
+  {% endif %}
+
+
+
+
+
+
+</body>
+</html>
