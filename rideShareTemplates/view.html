@@ -2,12 +2,32 @@
 <head><title>Trip {{ trip.id }} </title></head>
 <body>
 
-<h1>Host :</h1> {{ trip.host.user.username }} <br>
-<h1>Passengers : </h1> {% for passenger in trip.passengers.all %}
-{{ passenger.passenger.user.username }} <br>
+<h1>Host :</h1> 
+     {{ trip.host.user.username }} <br>
+
+<h1>Passengers : </h1> 
+{% for passenger in trip.passengers.all %}
+     
+     {{ passenger.passenger.user.username }} <br>
+
 {% endfor %}
 
+<h1> Trip Information : </h1>
 
+<b> Starting at: </b> {{ trip.trip.startAddress }} - {{ trip.trip.startZip }}<br>
+<b> Ending at: </b> {{ trip.trip.endAddress }} - {{ trip.trip.endZip }}<br>
+
+<b> Waypoints: </b> 
+
+{% for waypoint in trip.trip.waypoints.all %}
+
+     {{ waypoint.waypoint }} <br>
+
+
+{% endfor %}<br>
+
+<b> Total Miles: </b> {{ trip.trip.totalMiles }} <br>
+<b> Leaving on: </b> {{ trip.trip.leavingDate }} <br>
 
 
 </body>

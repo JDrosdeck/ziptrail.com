@@ -15,9 +15,18 @@
   {% if results %}
 
      {% for result in results %}
+         
+          {% if authenticated %}
+        
+           Host: {{ result.host.user.username }} <br>
 
-        {{ result }}
-
+          {% endif %}
+  
+          Starting at: {{ result.trip.startAddress }} <br>
+          Ending at: {{ result.trip.endAddress }} <br>
+          Leaving on: {{ result.trip.leavingDate }} <br>
+          <br>
+        
      {% endfor %}
 
 

@@ -167,7 +167,5 @@ def viewRide(request, id):
     # ie. google map. Waypoints, people involved
     
     matchedTrip = Trip.objects.get(id=id)
-    print matchedTrip.passengers
-
-
+    
     return direct_to_template(request, 'view.html', { 'trip' : matchedTrip })

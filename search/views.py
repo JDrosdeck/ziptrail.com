@@ -31,24 +31,16 @@ def search(request):
             matchedRides = Trip.objects.filter(host=Users.objects.filter(university=matchedUniversity))
             print len(matchedRides)
 
-                # Get the zip object passe in through the form
+            # Get the zip object passed in through the form
             zip = ZipCode.objects.get(zip=zipcode)
 
             matches = []
             for ride in matchedRides:
                 dist = getDistance(math.radians(float(zip.longitude)), math.radians(float(ride.trip.startZip.longitude)), math.radians(float(zip.latitude)), math.radians(float(ride.trip.startZip.latitude)))
                 if dist < int(distance):
-                    matches.append(Q(zip=ride.trip.startZip.zip))
-                    print dist
-            #get the trip informations with the found zip codes
-            #print Trip.objects.filter(trip=Route.objects.filter(startZip=ZipCode.objects.filter(reduce(operator.or_, matches)))).count()
-
-            print ZipCode.objects.filter(reduce(operator.or_, matches)).count()
-            
-            return direct_to_template(request, 'search.html', { 'results': matches })
-            
-
-
+                    matches.append(ride)
+                                      
+            return direct_to_template(request, 'search.html', { 'results': matches, 'authenticated' : request.user.is_authenticated() })
 
     else:
         form = SearchForm()
