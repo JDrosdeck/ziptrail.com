@@ -20,11 +20,15 @@ import re
 import simplejson
 import datetime
 
+from django.views.decorators.csrf import csrf_exempt
+
 # This is going to show a users home, and allow them to create a ride
 
 # or join a ride
+
+
 def home_View(request):
-  
+    print 'HEREHRHERHE'
     #Make sure the user is logged in
     if request.user.is_authenticated():
                 
@@ -39,7 +43,15 @@ def home_View(request):
         allRides = Trip.objects.filter().exclude(passengers__id__exact=Users.objects.filter(user=user))
         print len(allRides)
 
+
+
         #Check to see if they've added a new ride.
+        #The ride information is all going to be created client side
+        # with javascript. We will be recieving the following information about
+        # the trip, Start Address, Start Zip, End Address, End Zip, Duration, 
+        # Miles, and free seats
+
+
         if request.method =='POST':
             form = tripForm(request.POST)
             if form.is_valid():
@@ -52,61 +64,22 @@ def home_View(request):
                 #Car information
                 freeSeats = form.cleaned_data['freeSeats']
                 
-                # We can now grab the data from google maps
-                baseUrl= "http://maps.google.com/maps/api/directions/json?origin="
-                cleanedStartAddress = re.sub(' ', ',', startAddress)
-                print cleanedStartAddress
-                cleanedEndAddress = re.sub(' ', ',', endAddress)
-                print cleanedEndAddress
-
-                baseUrl = baseUrl + cleanedStartAddress + "&destination="
-                baseUrl = baseUrl + cleanedEndAddress + "&sensor=false"
-                
-                print baseUrl
-
-                mapData = urllib2.urlopen(baseUrl)
-                mapData =  mapData.read()
-                mapData = simplejson.loads(mapData)
-                #Extract data from the directions
-                if 'status' in mapData:
-                    status = mapData['status']
-                    print status
-                    if status == "OK":
-
-                        if 'routes' in mapData:
-                            mapData = mapData['routes']
-                            mapData =  dict(mapData[0])
-
-                        if 'legs' in mapData:
-                            mapData =  mapData['legs']
-                            mapData = dict(mapData[0])
-                
-                            if 'distance' in mapData:
-                                distance =  mapData['distance']
-                                distance = distance['text']
-
-                            if 'duration' in mapData:
-                                duration = mapData['duration']
-                                duration = duration['text']
-
-                            #Save the full data to the db
-                            host = User.objects.get(username=request.session['username'])
-                            host = Users.objects.get(user=host)
-                            host.car=Car.objects.get(seats=freeSeats)
-                            host.save()
+     
+                host = User.objects.get(username=request.session['username'])
+                host = Users.objects.get(user=host)
+                host.car=Car.objects.get(seats=freeSeats)
+                host.save()
                             
-
-                            route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), totalMiles=32, gallonsGas=32)
-                            route.save()
+                
+                route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), totalMiles=32, gallonsGas=32)
+                route.save()
                                                                      
-                            #Create a new Trip, 
-                            newRide = Trip(host=host, trip=route)
-                            newRide.save()
-                            return HttpResponseRedirect('/rides/home')
-
-                    else:
-                        return HttpResponse("Start or End address not valid.")
-
+                #Create a new Trip, 
+                newRide = Trip(host=host, trip=route)
+                newRide.save()
+                return HttpResponseRedirect('/rides/home')
+            
+           
         form = tripForm()
         return direct_to_template(request, 'home.html', { 'rides' : myRides, 'form' : form, 'availableRides' : allRides })
 

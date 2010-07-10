@@ -4,9 +4,10 @@ from rideShare.zip.models import ZipCode
 
 class Waypoint(models.Model):
     waypoint = models.CharField(max_length=100)
+    zipCode = models.ForeignKey(ZipCode)
 
     def __unicode__(self):
-        return u'%s' % (self.waypoint)
+        return u'%s, %s' % (self.waypoint, self.zipCode)
 
 class Route(models.Model):
     startAddress = models.CharField(max_length=200)
