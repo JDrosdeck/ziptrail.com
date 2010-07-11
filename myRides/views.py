@@ -15,12 +15,8 @@ from rideShare.common.forms import loginForm
 from rideShare.myRides.forms import tripForm
 from django.contrib.auth.models import User
 
-import urllib2
-import re
-import simplejson
 import datetime
 
-from django.views.decorators.csrf import csrf_exempt
 
 # This is going to show a users home, and allow them to create a ride
 
@@ -119,17 +115,22 @@ def addPassengerToRide(request, id):
 
         user = User.objects.filter(username=username)
         currentUser = Users.objects.get(user=user)
-        passenger = TripPassengers.objects.get(id=currentUser.id)
-
-        trip = Trip.objects.filter(id=id)
-        if len(trip) > 0:
-            trip[0].passengers.add(passenger)
-            trip[0].save()
-            
-            return HttpResponseRedirect('/rides/home/')
+        try:
+            passenger = TripPassengers.objects.get(id=currentUser.id)
+        except:
+            passenger = TripPassengers(passenger=currentUser)
+            passenger.save()
+            passenger = TripPassengers.objects.get(id=currentUser.id)
         
-        else:
-            return HttpResponse("You're already apart of this ride")
+
+        trip = Trip.objects.get(id=id)
+        
+        trip.passengers.add(passenger)
+        trip.save()
+            
+        return HttpResponseRedirect('/rides/home/')
+        
+        
 
     else:
         return HttpResponseRedirect('/login/')
