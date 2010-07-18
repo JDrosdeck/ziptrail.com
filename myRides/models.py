@@ -4,8 +4,15 @@ from rideShare.vehicle.models import Car
 from rideShare.routes.models import Route
 from rideShare.zip.models import ZipCode
 
+class StudentEmail(models.Model):
+    email = models.CharField(max_length=10)
+
+    def __unicode__(self):
+        return u'%s' % (self.email)
+
 class University(models.Model):
     name = models.CharField(max_length=30)
+    email = models.ManyToManyField(StudentEmail)
     zip = models.ForeignKey(ZipCode)
 
     
@@ -30,7 +37,7 @@ class Trip(models.Model):
     host = models.ForeignKey(Users)
     trip = models.ForeignKey(Route)
     passengers = models.ManyToManyField(TripPassengers, blank=True, null=True)
-
+    public = models.BooleanField(blank=False, null=False, default=False)
     def __unicode__(self):
         return u'Host: %s, Start: %s, End: %s' % (self.host.user.username, self.trip.startAddress, self.trip.endAddress) 
 

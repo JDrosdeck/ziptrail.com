@@ -28,7 +28,7 @@ def search(request):
             matchedUniversity = University.objects.get(name__iexact=university)
             
                 # Get all the rides that are matched for that university
-            matchedRides = Trip.objects.filter(host=Users.objects.filter(university=matchedUniversity))
+            matchedRides = Trip.objects.filter(host=Users.objects.filter(university=matchedUniversity), public=False)
             print len(matchedRides)
 
             # Get the zip object passed in through the form

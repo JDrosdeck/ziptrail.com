@@ -24,7 +24,7 @@ import datetime
 
 
 def home_View(request):
-    print 'HEREHRHERHE'
+
     #Make sure the user is logged in
     if request.user.is_authenticated():
                 
@@ -74,8 +74,7 @@ def home_View(request):
                 newRide = Trip(host=host, trip=route)
                 newRide.save()
                 return HttpResponseRedirect('/rides/home')
-            
-           
+                       
         form = tripForm()
         return direct_to_template(request, 'home.html', { 'rides' : myRides, 'form' : form, 'availableRides' : allRides })
 
