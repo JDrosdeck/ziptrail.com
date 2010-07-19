@@ -61,6 +61,7 @@ def logout_View(request):
     logout(request)
     return HttpResponse("Logged Out")
 
+
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -78,8 +79,8 @@ def register(request):
                 #Get the unvisity that has that email domain
                 #create the passenger (everyone gets defaulted to a passenger)
                 
-                email = StudentEmail.objects.get(email__iexact=emailDomain)
-                university = University.objects.filter(email__id__exact=email.id)
+                emailDomains = StudentEmail.objects.get(email__iexact=emailDomain)
+                university = University.objects.filter(email__id__exact=emailDomains.id)
                 
                 #TODO: If we get more then one university returned we then need 
                 # to have the user select which school that they belong to.
@@ -113,7 +114,33 @@ def register(request):
                 form = RegistrationForm()
                 return direct_to_template(request, 'register.html', { 'nameError' : True, 'form' : form })
 
-    else:
-        form = RegistrationForm()
+    elif request.method == 'GET':
+        email = request.GET.get('email', '')
+        password = request.GET.get('password','')
+        print email
+        print password
+        
+        if email != '' and password != '':
+            emailDomain = email[email.find('@'):]
+            emailDomains = StudentEmail.objects.get(email__iexact=emailDomain)
+            university = University.objects.filter(email__id__exact=emailDomains.id)
+            if university.count() < 1:
+                return HttpResponse('School not found')
+            elif university.count() > 1:
+                results = generateUniversityJson(university.values())
+                return HttpResponse(results)
+
+            user = User.objects.create_user(email,email,password)
+            newUser = Users(user=user, university = university[0])
+            newUser.save()
+            user.is_staff = False
+            user.save()
+            user = authenticate(username=email, password=password)
+            login(request, user)
+            request.session['username']=email
+            return HttpResponseRedirect('/rides/home/')
+            
+        else:   
+             form = RegistrationForm()
     return direct_to_template(request, 'register.html', { 'form' : form})
 
