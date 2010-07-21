@@ -122,10 +122,10 @@ function showSteps(directionResult)
 
 <h1>Create a Trip</h1>
 
-<form>
+<form action="/rides/home/" method="post">
 {% csrf_token %}
 {{ form.as_p }}
-<input type="button" value="Submit" onClick="calcRoute()"/>
+<input type="submit" value="Submit"/>
 </form>
 
 <div id="map_canvas" style="width:500px; height:300px"></div>

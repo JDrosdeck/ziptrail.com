@@ -12,39 +12,84 @@ from rideShare.search.forms import SearchForm
 from rideShare.zip.models import ZipCode
 from rideShare.routes.models import Route
 from rideShare.myRides.models import University, Trip, Users
+from itertools import chain
 import math
 import operator
+
 
 def search(request):
 
     if request.method == 'POST':
         form = SearchForm(request.POST)
         if form.is_valid():
-            university = form.cleaned_data['university']
-            zipcode = form.cleaned_data['zipCode']
+            
+            #Grab the users university
+            username = request.session['username']
+            
+            userInfo = Users.objects.get(user=User.objects.filter(username=username))
+
+            endCode = form.cleaned_data['endCode']
+            startCode = form.cleaned_data['startCode']
             distance = form.cleaned_data['distance']
             
-                # get all the trips listed for the university
-            matchedUniversity = University.objects.get(name__iexact=university)
+            # Get all the rides that are matched for that university
+            matchedRides = Trip.objects.filter(host=Users.objects.filter(university=userInfo.university), public=False)
+
+
+            endzip = ZipCode.objects.get(zip=endCode)
+            startzip = ZipCode.objects.get(zip=startCode)
+
+            #Find all the rides that are starting close to where you want to start from
+            nearbyRides = calcDistances(matchedRides, startzip, 5)
+            print nearbyRides
+
+
+            #get all the waypoints associated wth that university
+            results = []
+
+            for x in nearbyRides:
+                for ride in matchedRides:
+                    if ride.id == x:
+                        #calculate the distance of the end point
+                        if getDistance(endzip.longitude, ride.trip.endZip.longitude, endzip.latitude, ride.trip.endZip.latitude) < distance:
+                            print 'added to results'
+                            results.append(ride)
+                            break
+                        else:
+                            for waypoint in ride.trip.waypoints.all():
+                                if getDistance(endzip.longitude, waypoint.zipCode.longitude, endzip.latitude, waypoint.zipCode.latitude) < distance:
+                                    results.append(ride)
+                                    break
+                    
+                
+                           
+            matches = results                       
+           # matches = calcDistances(matchedRides, zip, distance)
             
-                # Get all the rides that are matched for that university
-            matchedRides = Trip.objects.filter(host=Users.objects.filter(university=matchedUniversity), public=False)
-            print len(matchedRides)
-
-            # Get the zip object passed in through the form
-            zip = ZipCode.objects.get(zip=zipcode)
-
-            matches = []
-            for ride in matchedRides:
-                dist = getDistance(math.radians(float(zip.longitude)), math.radians(float(ride.trip.startZip.longitude)), math.radians(float(zip.latitude)), math.radians(float(ride.trip.startZip.latitude)))
-                if dist < int(distance):
-                    matches.append(ride)
-                                      
             return direct_to_template(request, 'search.html', { 'results': matches, 'authenticated' : request.user.is_authenticated() })
 
-    else:
+
+    # handle the typical ajax search request
+    elif request.method == 'GET':
+        None
+
+
+
         form = SearchForm()
         return direct_to_template(request, 'search.html', { 'form' : form } )
+
+
+
+def calcDistances(matchedRides,zip, distance):
+    matches = []
+    for ride in matchedRides:
+        dist = getDistance(math.radians(float(zip.longitude)), math.radians(float(ride.trip.startZip.longitude)), math.radians(float(zip.latitude)), math.radians(float(ride.trip.startZip.latitude)))
+        if dist < int(distance):
+            matches.append(ride.id)
+    return matches
+
+
+
 
 def getDistance(long1, long2, lat1, lat2):
 
