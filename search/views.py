@@ -51,13 +51,13 @@ def search(request):
                 for ride in matchedRides:
                     if ride.id == x:
                         #calculate the distance of the end point
-                        if getDistance(endzip.longitude, ride.trip.endZip.longitude, endzip.latitude, ride.trip.endZip.latitude) < distance:
+                        if getDistance(endzip.longitude, ride.trip.endZip.globalPos.longitude, endzip.latitude, ride.trip.endZip.globalPos.latitude) < distance:
                             print 'added to results'
                             results.append(ride)
                             break
                         else:
                             for waypoint in ride.trip.waypoints.all():
-                                if getDistance(endzip.longitude, waypoint.zipCode.longitude, endzip.latitude, waypoint.zipCode.latitude) < distance:
+                                if getDistance(endzip.longitude, waypoint.zipCode.lat_long.longitude, endzip.latitude, waypoint.zipCode.lat_long.latitude) < distance:
                                     results.append(ride)
                                     break
                     
@@ -83,7 +83,7 @@ def search(request):
 def calcDistances(matchedRides,zip, distance):
     matches = []
     for ride in matchedRides:
-        dist = getDistance(math.radians(float(zip.longitude)), math.radians(float(ride.trip.startZip.longitude)), math.radians(float(zip.latitude)), math.radians(float(ride.trip.startZip.latitude)))
+        dist = getDistance(math.radians(float(zip.longitude)), math.radians(float(ride.trip.startZip.globalPos.longitude)), math.radians(float(zip.latitude)), math.radians(float(ride.trip.startZip.globalPos.latitude)))
         if dist < int(distance):
             matches.append(ride.id)
     return matches

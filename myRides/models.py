@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from rideShare.vehicle.models import Car
 from rideShare.routes.models import Route
-from rideShare.zip.models import ZipCode
+from rideShare.zip.models import ZipCode, Position
 
 class StudentEmail(models.Model):
     email = models.CharField(max_length=10)
@@ -12,9 +12,10 @@ class StudentEmail(models.Model):
 
 class University(models.Model):
     name = models.CharField(max_length=30)
+    address = models.CharField(max_length=50)
     email = models.ManyToManyField(StudentEmail)
     zip = models.ForeignKey(ZipCode)
-
+    latLng = models.ForeignKey(Position)
     
     def __unicode__(self):
         return u'%s' % (self.name)
