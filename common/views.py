@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from rideShare.common.forms import RegistrationForm, loginForm
 from rideShare.myRides.models import Users, University, StudentEmail
-from rideShare.zip.models import ZipCode
+from rideShare.geo.models import ZipCode
 
 from django.contrib.sessions.models import Session
 from django.utils import simplejson as json

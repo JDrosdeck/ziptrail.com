@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from rideShare.vehicle.models import Car
 from rideShare.routes.models import Route
-from rideShare.zip.models import ZipCode, Position
+from rideShare.geo.models import ZipCode, Position
 
 class StudentEmail(models.Model):
     email = models.CharField(max_length=10)

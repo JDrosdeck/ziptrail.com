@@ -9,7 +9,7 @@ from django import forms
 from rideShare.myRides.models import Users, TripPassengers, Trip
 from rideShare.routes.models import Waypoint, Route
 from rideShare.vehicle.models import Car
-from rideShare.zip.models import ZipCode
+from rideShare.geo.models import ZipCode, Position
 
 from rideShare.common.forms import loginForm
 from rideShare.myRides.forms import tripForm
@@ -63,11 +63,14 @@ def home_View(request):
      
                 host = User.objects.get(username=request.session['username'])
                 host = Users.objects.get(user=host)
-                host.car=Car.objects.get(seats=freeSeats)
+                host.car=Car.objects.get(seats=int(freeSeats))
                 host.save()
                             
-                
-                route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), totalMiles=32, gallonsGas=32)
+                startLatLong = Position(latitude=0.0, longitude=0.0)
+                endLatLong = Position(latitude=0.0, longitude=0.0)
+                startLatLong.save()
+                endLatLong.save()
+                route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=32, gallonsGas=32)
                 route.save()
                                                                      
                 #Create a new Trip, 

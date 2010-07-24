@@ -1,5 +1,5 @@
 from django.db import models
-from rideShare.zip.models import ZipCode, Position
+from rideShare.geo.models import ZipCode, Position
 
 
 class Waypoint(models.Model):

@@ -9,7 +9,7 @@ from django.db.models import Q
 
 
 from rideShare.search.forms import SearchForm
-from rideShare.zip.models import ZipCode
+from rideShare.geo.models import ZipCode
 from rideShare.routes.models import Route
 from rideShare.myRides.models import University, Trip, Users
 from itertools import chain
@@ -26,45 +26,45 @@ def search(request):
             #Grab the users university
             username = request.session['username']
             
-            userInfo = Users.objects.get(user=User.objects.filter(username=username))
 
-            endCode = form.cleaned_data['endCode']
-            startCode = form.cleaned_data['startCode']
-            distance = form.cleaned_data['distance']
+            #startPos and endPos are the lat/long for the address passed in via the form (javascript)
+            startAddress = form.cleaned_data['startAddress']
+            startLat = float(form.cleaned_data['startLat'])
+            startLong = float(form.cleaned_data['startLong'])
+            endAddress = form.cleaned_data['endAddress']
+            endLat = float(form.cleaned_data['endLat'])
+            endLong = float(form.cleaned_data['endLong'])
+            distance = float(form.cleaned_data['distance'])
             
-            # Get all the rides that are matched for that university
+            userInfo = Users.objects.get(user=User.objects.filter(username=username))
+            
+            #match all the rides being hosted by members of the university
+            #public determines if it is only limited to university members
             matchedRides = Trip.objects.filter(host=Users.objects.filter(university=userInfo.university), public=False)
-
-
-            endzip = ZipCode.objects.get(zip=endCode)
-            startzip = ZipCode.objects.get(zip=startCode)
-
-            #Find all the rides that are starting close to where you want to start from
-            nearbyRides = calcDistances(matchedRides, startzip, 5)
-            print nearbyRides
-
-
-            #get all the waypoints associated wth that university
+            
+            #Determine which of those matchedRides are beginning close to where you want to
+            #for now we'll default to 5 miles
+            matches = calcDistances(matchedRides, startLat, startLong, 5)
+            
+            #go through those matches and find any who will add a minimum time to the trip
             results = []
-
-            for x in nearbyRides:
-                for ride in matchedRides:
-                    if ride.id == x:
-                        #calculate the distance of the end point
-                        if getDistance(endzip.longitude, ride.trip.endZip.globalPos.longitude, endzip.latitude, ride.trip.endZip.globalPos.latitude) < distance:
-                            print 'added to results'
+            for ride in matchedRides:
+                for match in matches:
+                    if ride.id = match:
+                        #See if the end points are near
+                        dist  = getDistance(endLong, ride.trip.endLat_Long.globalPos.longitude, endLat, ride.trip.endLat_Long.globalPos.latitude)
+                        if dist < distance:
                             results.append(ride)
-                            break
                         else:
+                            #Check all the waypoints for nearby rides
                             for waypoint in ride.trip.waypoints.all():
-                                if getDistance(endzip.longitude, waypoint.zipCode.lat_long.longitude, endzip.latitude, waypoint.zipCode.lat_long.latitude) < distance:
+                                if getDistance(endLong, waypoint.lat_long.longitude,endLat, waypoint.lat_long.latitude) < 10:
                                     results.append(ride)
-                                    break
-                    
-                
-                           
-            matches = results                       
-           # matches = calcDistances(matchedRides, zip, distance)
+                        
+                        if ride not in results:
+                            #Do a psuedo average time to see if it won't make the trip much longer
+                            pass
+
             
             return direct_to_template(request, 'search.html', { 'results': matches, 'authenticated' : request.user.is_authenticated() })
 
@@ -79,11 +79,13 @@ def search(request):
         return direct_to_template(request, 'search.html', { 'form' : form } )
 
 
-
-def calcDistances(matchedRides,zip, distance):
+# calcDistances returns a list of the matching indicies of the given matchedRides.
+# this way we are able to continue using the query object easily instead of 
+# putting it back into a list
+def calcDistances(matchedRides,lat, long,  distance):
     matches = []
     for ride in matchedRides:
-        dist = getDistance(math.radians(float(zip.longitude)), math.radians(float(ride.trip.startZip.globalPos.longitude)), math.radians(float(zip.latitude)), math.radians(float(ride.trip.startZip.globalPos.latitude)))
+        dist = getDistance(math.radians(long), math.radians(ride.trip.startLat_Long.globalPos.longitude), math.radians(lat), math.radians(ride.trip.startLat_Long.globalPos.latitude))
         if dist < int(distance):
             matches.append(ride.id)
     return matches

@@ -1,7 +1,7 @@
 import csv
 import re
 from django.http import HttpResponse
-from rideShare.zip.models import ZipCode, Position
+from rideShare.geo.models import ZipCode, Position
 from rideShare.myRides.models import University, StudentEmail
 
 def loadZip(request):
@@ -79,10 +79,6 @@ def loadSchool(request):
             pass
             
         newUniversity.save()
-            
-            
-
-
 
     return HttpResponse("Load complete")
     

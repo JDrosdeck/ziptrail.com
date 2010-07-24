@@ -11,7 +11,7 @@ urlpatterns = patterns('',
     # Example:
     (r'^', include('rideShare.common.urls')),
     (r'^rides/', include('rideShare.myRides.urls')),
-    (r'^load/', include('rideShare.zip.urls')),
+    (r'^load/', include('rideShare.geo.urls')),
     (r'^', include('rideShare.search.urls')),
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT }),
 
