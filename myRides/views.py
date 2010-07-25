@@ -36,8 +36,10 @@ def home_View(request):
         myRides = Trip.objects.filter(passengers__id__exact=Users.objects.filter(user=user))
         print len(myRides)
         
-        allRides = Trip.objects.filter().exclude(passengers__id__exact=Users.objects.filter(user=user))
+        allRides = Trip.objects.filter().exclude(passengers__id__exact=Users.objects.filter(user=user)).exclude(host=Users.objects.get(user=user))
         print len(allRides)
+
+        HostedRides = Trip.objects.filter(host=Users.objects.get(user=user))
 
 
 
@@ -77,9 +79,45 @@ def home_View(request):
                 newRide = Trip(host=host, trip=route)
                 newRide.save()
                 return HttpResponseRedirect('/rides/home')
-                       
+            
+        #This is for adding a ride via ajax
+        elif request.method == 'GET':
+            startAdd = request.GET.get('startAdd' , '')
+            startZip = request.GET.get('startZip', '')
+            startLat = request.GET.get('startLat', '')
+            startLng = request.GET.get('startLng', '')
+            endAdd = request.GET.get('endAdd', '')
+            endZip = request.GET.get('endZip', '')
+            endLat = request.GET.get('endLat', '')
+            endLng = request.GET.get('endLng', '')
+            seats = request.GET.get('seats', '')
+            if startAdd != '' and startZip != '' and startLat != '' and startLng != '' and endAdd != '' and endZip != '' and endLat != '' and endLng != '' and seats!= '':
+                host = User.objects.get(username=request.session['username'])
+                host = Users.objects.get(user=host)
+                host.car=Car.objects.get(seats=int(seats))
+                host.save()
+                
+                startLatLong = Position(latitude=startLat, longitude=startLng)
+                endLatLong = Position(latitude=endLat, longitude=endLng)
+                startLatLong.save()
+                endLatLong.save()
+                route = Route(startAddress=startAdd, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAdd, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=32, gallonsGas=32)
+                route.save()
+                newRide = Trip(host=host, trip=route)
+                newRide.save()	
+	        g = Trip.objects.filter(host=Users.objects.filter(user=user))
+                print g
+                return HttpResponse(g)
+            
+
+
+
+
         form = tripForm()
-        return direct_to_template(request, 'home.html', { 'rides' : myRides, 'form' : form, 'availableRides' : allRides })
+        return direct_to_template(request, 'home.html', { 'rides' : myRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides })
+    
+    
+    
 
     else:
         form = loginForm()
