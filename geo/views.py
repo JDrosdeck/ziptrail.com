@@ -43,12 +43,11 @@ def loadSchool(request):
         except:
             email1 = StudentEmail(email=tempemail1)
             email1.save()
+
             
 
         email2 = None
        
-
-            
         tempemail2 = row[4]
         if tempemail2.startswith('@'):
             tempemail2 = re.sub('\"', '' , row[4])
@@ -72,13 +71,13 @@ def loadSchool(request):
         pos.save()
         newUniversity= University(name=name, address=address, zip=zcode, latLng=pos)
         newUniversity.save()
-        newUniversity.email.add(email1)
+        newUniversity.email.add(email1.id)
         try:
-            newUniversity.email.add(email2)
+            newUniversity.email.add(email2.id)
         except:
             pass
             
         newUniversity.save()
-
+    
     return HttpResponse("Load complete")
     

@@ -53,10 +53,15 @@ function showSteps(directionResult)
 {
   var myRoute = directionResult.routes[0].legs[0];
 
-      alert( myRoute.distance.text);
+      alert( myRoute.distance.value);
       alert( myRoute.duration.text);
+	  alert( myRoute.start_location.lat)
+	  alert( myRoute.start_location.lng)
       alert( myRoute.start_address);
       alert( myRoute.end_address);
+	  alert( myRoute.end_location.lat)
+	  alert( myRoute.end_location.lng)
+	
 
 	 var dataString = 'id_startAddress=' + myRoute.start_address + '&id_endAddress=' + myRoute.end_address;
 		
@@ -119,7 +124,17 @@ function showSteps(directionResult)
 
 {% endif %}
 
+<h1> Rides I'm Hosting </h1>
+{% if hostedRides %}
+     {% for ride in hostedRides %}
 
+          Riding to: {{ ride.trip}} <br> 
+
+     {% endfor %}
+{% else %}
+
+     You're not hosting any rides 
+{% endif %}
 <h1>Create a Trip</h1>
 
 <form action="/rides/home/" method="post">

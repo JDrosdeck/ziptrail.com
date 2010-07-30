@@ -29,10 +29,7 @@ def home_View(request):
     if request.user.is_authenticated():
                 
         #get all the rides that their apart of as a passenger
-        username = request.session['username']
-        
-
-        user = User.objects.get(username=username)
+        user = User.objects.get(username=request.session['username'])
         myRides = Trip.objects.filter(passengers__id__exact=Users.objects.filter(user=user))
         print len(myRides)
         

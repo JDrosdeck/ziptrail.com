@@ -23,10 +23,6 @@ def search(request):
         form = SearchForm(request.POST)
         if form.is_valid():
             
-            #Grab the users university
-            username = request.session['username']
-            
-
             #startPos and endPos are the lat/long for the address passed in via the form (javascript)
             startAddress = form.cleaned_data['startAddress']
             startLat = float(form.cleaned_data['startLat'])
@@ -35,38 +31,12 @@ def search(request):
             endLat = float(form.cleaned_data['endLat'])
             endLong = float(form.cleaned_data['endLong'])
             distance = float(form.cleaned_data['distance'])
+            results = runSearch(startAddress, startLat, startLong, endAddress, endLat, endLong, distance)
             
-            userInfo = Users.objects.get(user=User.objects.filter(username=username))
+            query = reduce(operator.or_, (Q(pk=x) for x in results))
+            results = Trip.objects.filter(query)
             
-            #match all the rides being hosted by members of the university
-            #public determines if it is only limited to university members
-            matchedRides = Trip.objects.filter(host=Users.objects.filter(university=userInfo.university), public=False)
-            
-            #Determine which of those matchedRides are beginning close to where you want to
-            #for now we'll default to 5 miles
-            matches = calcDistances(matchedRides, startLat, startLong, 5)
-            
-            #go through those matches and find any who will add a minimum time to the trip
-            results = []
-            for ride in matchedRides:
-                for match in matches:
-                    if ride.id = match:
-                        #See if the end points are near
-                        dist  = getDistance(endLong, ride.trip.endLat_Long.globalPos.longitude, endLat, ride.trip.endLat_Long.globalPos.latitude)
-                        if dist < distance:
-                            results.append(ride)
-                        else:
-                            #Check all the waypoints for nearby rides
-                            for waypoint in ride.trip.waypoints.all():
-                                if getDistance(endLong, waypoint.lat_long.longitude,endLat, waypoint.lat_long.latitude) < 10:
-                                    results.append(ride)
-                        
-                        if ride not in results:
-                            #Do a psuedo average time to see if it won't make the trip much longer
-                            pass
-
-            
-            return direct_to_template(request, 'search.html', { 'results': matches, 'authenticated' : request.user.is_authenticated() })
+            return direct_to_template(request, 'search.html', { 'results': results, 'authenticated' : request.user.is_authenticated() })
 
 
     # handle the typical ajax search request
@@ -77,6 +47,51 @@ def search(request):
 
         form = SearchForm()
         return direct_to_template(request, 'search.html', { 'form' : form } )
+
+def runSearch(startAddress,startLat, startLong, endAddress, endLat, endLong, distance, public=False):
+    username = request.session['username']
+    
+    #Get the users information so we can extract out the university they belong to
+    userInfo = Users.objects.get(user=User.objects.filter(username=username))
+
+    #match all the rides being hosted by members of the university
+    #public determins if it is only limited to university members
+    matchedRides = Trip.objects.filter(host=Users.objects.filter(university=userInfo.university), public=public)
+    
+    #Determine which of those rides are beginning close to where you'd to start at
+    # The default for now is 5 miles
+    matches = calcDistances(matchedRides, startLat, startLong, 5)
+
+    #Go through those matches and find any who will add a minimum time to the trip
+    results = []
+    for ride in matchedRides:
+         for match in matches:
+             if ride.id == match:
+                #See if the end points are near
+                 dist  = getDistance(endLong, ride.trip.endLat_Long.globalPos.longitude, endLat, ride.trip.endLat_Long.globalPos.latitude)
+                 if dist < distance:
+                     results.append(ride.id)
+                 else:
+                     #Check all the waypoints for nearby rides
+                     for waypoint in ride.trip.waypoints.all():
+                         if getDistance(endLong, waypoint.lat_long.longitude,endLat, waypoint.lat_long.latitude) < 10:
+                             results.append(ride.id)
+                        
+                 if ride not in results:
+                    #Do a psuedo average time to see if it won't make the trip much longer
+                     pass
+
+
+    return results
+
+
+
+
+
+
+
+
+
 
 
 # calcDistances returns a list of the matching indicies of the given matchedRides.

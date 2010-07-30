@@ -5,14 +5,14 @@ from rideShare.routes.models import Route
 from rideShare.geo.models import ZipCode, Position
 
 class StudentEmail(models.Model):
-    email = models.CharField(max_length=10)
+    email = models.CharField(max_length=35)
 
     def __unicode__(self):
         return u'%s' % (self.email)
 
 class University(models.Model):
-    name = models.CharField(max_length=30)
-    address = models.CharField(max_length=50)
+    name = models.CharField(max_length=150)
+    address = models.CharField(max_length=200)
     email = models.ManyToManyField(StudentEmail)
     zip = models.ForeignKey(ZipCode)
     latLng = models.ForeignKey(Position)

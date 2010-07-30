@@ -62,6 +62,19 @@ def logout_View(request):
     return HttpResponse("Logged Out")
 
 
+def isEmailDomainValid(request):
+    if request.method == 'GET':
+        email = request.GET.get('email', '')
+        if email != '':
+            try:
+                print email
+                emailDomains = StudentEmail.objects.get(email__iexact=email)
+            
+                return HttpResponse('True')
+            except:
+                return HttpResponse('False')
+
+
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -79,7 +92,7 @@ def register(request):
                 #Get the unvisity that has that email domain
                 #create the passenger (everyone gets defaulted to a passenger)
                 
-                emailDomains = StudentEmail.objects.get(email__iexact=emailDomain)
+                emailDomains = StudentEmail.objects.get(email__iexact=emailDomain)    
                 university = University.objects.filter(email__id__exact=emailDomains.id)
                 
                 #TODO: If we get more then one university returned we then need 
@@ -111,12 +124,18 @@ def register(request):
                 request.session['username'] = email
                 return HttpResponseRedirect('/rides/home/')
             else:
+                print 'here'
                 form = RegistrationForm()
                 return direct_to_template(request, 'register.html', { 'nameError' : True, 'form' : form })
 
     elif request.method == 'GET':
         email = request.GET.get('email', '')
         password = request.GET.get('password','')
+        
+        # This extra value is used in the case that the university
+        # the user belongs to is not distinct to the email address. This id 
+        # represents the id of the university
+        id = request.GET.get('id', '')
         print email
         print password
         
@@ -127,8 +146,16 @@ def register(request):
             if university.count() < 1:
                 return HttpResponse('School not found')
             elif university.count() > 1:
-                results = generateUniversityJson(university.values())
-                return HttpResponse(results)
+                #If there was no id given, then we should return the possible values back
+                if id == '':
+                    results = generateUniversityJson(university.values())
+                    return HttpResponse(results)
+
+                #We were given an id, and that should represent the university
+                else:
+                    university = University.objects.filter(id=id)
+
+
 
             user = User.objects.create_user(email,email,password)
             newUser = Users(user=user, university = university[0])
