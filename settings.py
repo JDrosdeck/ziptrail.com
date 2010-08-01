@@ -12,10 +12,10 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'db_rideshare',                      # Or path to database file if using sqlite3.
-        'USER': 'postgres',                      # Not used with sqlite3.
+        'NAME': 'rideshare_db',                      # Or path to database file if using sqlite3.
+        'USER': 'ridesharedba',                      # Not used with sqlite3.
         'PASSWORD': 'jondii',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
 
 	}
@@ -46,17 +46,20 @@ USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '/Users/jdrosdeck/Sites/rideShare/rideShareTemplates/'
+MEDIA_ROOT = '/public_html/rideshare.com/rideShare/rideShareTemplates/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = 'http://dev:8000/'
+
+#URL used for internal channeling
+BASE_URL = 'http://dev:8000'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/media/admin/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'nk60x%)&pj^41kxoojkfug&qasdfpasofj4-3932-39wpfjasdfy-fu19q9+dxv(%@(-ntjz3@#n%'
@@ -83,7 +86,7 @@ ROOT_URLCONF = 'rideShare.urls'
 
 TEMPLATE_DIRS = (
 
-    "/Users/jdrosdeck/Sites/rideShare/rideShareTemplates"
+    "/home/twosprout/public_html/rideshare.com/rideShare/rideShareTemplates/"
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

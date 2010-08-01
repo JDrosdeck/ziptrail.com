@@ -41,10 +41,21 @@ def search(request):
 
     # handle the typical ajax search request
     elif request.method == 'GET':
-        None
+        startAddress = request.GET.get('startAddress' ,'')
+        startLat = request.GET.get('startLat', '')
+        startLong = request.GET.get('startLong', '')
+        endAddress = request.GET.get('endAddress' ,'')
+        endLat = request.GET.get('endLat' ,'')
+        endLong = request.GET.get('endLong', '')
+        distance = request.GET.get('distance', '')
+        results = runSearch(startAddress, startLat, startLong, endAddress, endLat, endLong, distance)
 
+        query = reduce(operator.or_, (Q(pk=x) for x in results))
+        results = Trip.objects.filter(query)
+        
+        return HttpResponse(results)
 
-
+    else:
         form = SearchForm()
         return direct_to_template(request, 'search.html', { 'form' : form } )
 

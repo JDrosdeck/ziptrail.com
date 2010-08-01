@@ -14,6 +14,7 @@ from rideShare.geo.models import ZipCode
 
 from django.contrib.sessions.models import Session
 from django.utils import simplejson as json
+from django.conf import settings
 import types
 from django.db import models
 from django.core.serializers import serialize
@@ -22,7 +23,6 @@ from decimal import *
 #Function takes in a queryset and will
 #return a json object represeting that queryset
 def generateUniversityJson(university):
-    print '-----------------------'
     
     allSchools = dict()
     tempSchool = []
@@ -30,8 +30,6 @@ def generateUniversityJson(university):
         tempSchool.append(school)
         allSchools['results'] = tempSchool 
     
-    print '----------------------'
-
     return json.dumps(allSchools)
 
 def login_View(request):
@@ -48,7 +46,7 @@ def login_View(request):
                     #direct to home
                     login(request, user)
                     request.session['username'] = email
-                    return HttpResponseRedirect('/rides/home/')
+                    return HttpResponseRedirect(settings.BASE_URL + '/rides/home/')
                 else:
                     return HttpResponse("Your account has been disabled")
             else:
@@ -67,7 +65,6 @@ def isEmailDomainValid(request):
         email = request.GET.get('email', '')
         if email != '':
             try:
-                print email
                 emailDomains = StudentEmail.objects.get(email__iexact=email)
             
                 return HttpResponse('True')
@@ -99,11 +96,9 @@ def register(request):
                 # to have the user select which school that they belong to.
                 # if no school is returned then we need to have then input
                 # their school and have it email us.
-                print 'count: ' + str(university.count())
                 if university.count() < 1:
                     return HttpResponse('School not found')
                 elif university.count() > 1:
-                    print university.count()
                     # The internal json serializes gives us way too much
                     # information that we don't need so we need a custom 
                     # function to go thorugh and generate the proper json
@@ -122,9 +117,8 @@ def register(request):
                 user = authenticate(username=email, password=passphrase)
                 login(request, user)
                 request.session['username'] = email
-                return HttpResponseRedirect('/rides/home/')
+                return HttpResponseRedirect(settings.BASE_URL + '/rides/home/')
             else:
-                print 'here'
                 form = RegistrationForm()
                 return direct_to_template(request, 'register.html', { 'nameError' : True, 'form' : form })
 
@@ -136,8 +130,6 @@ def register(request):
         # the user belongs to is not distinct to the email address. This id 
         # represents the id of the university
         id = request.GET.get('id', '')
-        print email
-        print password
         
         if email != '' and password != '':
             emailDomain = email[email.find('@'):]
@@ -165,7 +157,7 @@ def register(request):
             user = authenticate(username=email, password=password)
             login(request, user)
             request.session['username']=email
-            return HttpResponseRedirect('/rides/home/')
+            return HttpResponseRedirect(settings.BASE_URL + '/rides/home/')
             
         else:   
              form = RegistrationForm()
