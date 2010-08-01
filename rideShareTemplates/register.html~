@@ -4,7 +4,7 @@
   {% if nameError %}
   <p> That username is already  taken...two people with the same email? Sounds fishy </p>
   {% endif %}
-  <form action="http://dev:8000/register/" method="post">
+  <form action="/register/" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <input type = "submit" value ="Submit" />

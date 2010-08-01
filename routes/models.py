@@ -3,6 +3,10 @@ from rideShare.geo.models import ZipCode, Position
 
 
 class Waypoint(models.Model):
+    #The title is basically just so when a user enters in a play they'd like
+    #to go we have some easy way for them to identify it
+    #so we can keep a nice list of saved places that they can easily give out
+    title = models.CharField(max_length=50, blank=True, null=True)
     waypoint = models.CharField(max_length=100)
     lat_long = models.ForeignKey(Position)
 

@@ -113,7 +113,7 @@ function showSteps(directionResult)
 
      {% for ride in availableRides %}
 
-        Ride To : {{ ride.trip }} <a href="http://dev:8000/rides/requestPassenger/?tripId={{ride.id}}/"> Add </a> <br>
+        Ride To : {{ ride.trip }} <a href="http://dev:8000/rides/requestPassenger/?tripId={{ride.id}}"> Add </a> <br>
 
      {% endfor %}
 
@@ -130,12 +130,12 @@ function showSteps(directionResult)
 
           Riding to: {{ ride.trip}} <br> 
        {% for acceptedPassenger in ride.acceptedPassengers.all %}
-               remove: <a href="http://dev:8000/rides/removeRider/?tripId={{ride.id}}&riderId={{acceptedPassenger.user.id}}">{{acceptedPassenger.user.username}}</a>
+               remove: <a href="http://dev:8000/rides/removeRider/?tripId={{ride.id}}&riderId={{acceptedPassenger.user.id}}"{{acceptedPassenger.user.username}}</a>
              {% endfor %}
 
 
              {% for pendingPassenger in ride.pendingPassengers.all %}
-              add: <a href="http://dev:8000/rides/addRider/?tripId={{ride.id}}&riderId={{pendingPassenger.user.id}}"> {{pendingPassenger.user.username}}</a>
+              add: <a href="http://dev:8000/rides/addRider/?tripId={{ride.id}}&riderId={{pendingPassenger.user.id}}" {{pendingPassenger.user.username}}</a>
              {% endfor %}
 
      {% endfor %}

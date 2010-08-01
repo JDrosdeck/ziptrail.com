@@ -8,7 +8,7 @@ from django.conf import settings
 from django.utils import simplejson as json
 
 #Database models
-from rideShare.myRides.models import Users, TripPassengers, Trip
+from rideShare.myRides.models import Users, Trip
 from rideShare.routes.models import Waypoint, Route
 from rideShare.vehicle.models import Car
 from rideShare.geo.models import ZipCode, Position
@@ -30,19 +30,23 @@ def home_View(request):
                 
         #get all the rides that their apart of as a passenger
         user = User.objects.get(username=request.session['username'])
-        myRides = Trip.objects.filter(passengers__id__exact=Users.objects.filter(user=user))
+        rider = Users.objects.filter(user=user)
+        acceptedRides = Trip.objects.filter(acceptedPassengers__id__exact=rider)
+        
+        #get all rides that their still pending on as a passenger
+        pendingRides = Trip.objects.filter(pendingPassengers__id__exact=rider)
 
         
-        allRides = Trip.objects.filter().exclude(passengers__id__exact=Users.objects.filter(user=user)).exclude(host=Users.objects.get(user=user))
+        allRides = Trip.objects.filter().exclude(acceptedPassengers__id__exact=rider).exclude(pendingPassengers__id__exact=rider).exclude(host=rider)
 
-        HostedRides = Trip.objects.filter(host=Users.objects.get(user=user))
+        HostedRides = Trip.objects.filter(host=rider)
+
 
         #Check to see if they've added a new ride.
         #The ride information is all going to be created client side
         # with javascript. We will be recieving the following information about
         # the trip, Start Address, Start Zip, End Address, End Zip, Duration, 
         # Miles, and free seats
-
 
         if request.method =='POST':
             form = tripForm(request.POST)
@@ -56,7 +60,6 @@ def home_View(request):
                 #Car information
                 freeSeats = form.cleaned_data['freeSeats']
                 
-     
                 host = User.objects.get(username=request.session['username'])
                 host = Users.objects.get(user=host)
                 host.car=Car.objects.get(seats=int(freeSeats))
@@ -74,119 +77,16 @@ def home_View(request):
                 newRide.save()
                 return HttpResponseRedirect(settings.BASE_URL + '/rides/home')
             
-        #This is for adding a ride via ajax
-        elif request.method == 'GET':
-            startAdd = request.GET.get('startAdd' , '')
-            startZip = request.GET.get('startZip', '')
-            startLat = request.GET.get('startLat', '')
-            startLng = request.GET.get('startLng', '')
-            endAdd = request.GET.get('endAdd', '')
-            endZip = request.GET.get('endZip', '')
-            endLat = request.GET.get('endLat', '')
-            endLng = request.GET.get('endLng', '')
-            seats = request.GET.get('seats', '')
-            if startAdd != '' and startZip != '' and startLat != '' and startLng != '' and endAdd != '' and endZip != '' and endLat != '' and endLng != '' and seats!= '':
-                host = User.objects.get(username=request.session['username'])
-                host = Users.objects.get(user=host)
-                host.car=Car.objects.get(seats=int(seats))
-                host.save()
-                
-                startLatLong = Position(latitude=startLat, longitude=startLng)
-                endLatLong = Position(latitude=endLat, longitude=endLng)
-                startLatLong.save()
-                endLatLong.save()
-                route = Route(startAddress=startAdd, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAdd, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=32, gallonsGas=32)
-                route.save()
-                newRide = Trip(host=host, trip=route)
-                newRide.save()	
-	        g = Trip.objects.filter(host=Users.objects.filter(user=user))
-
-                return HttpResponse(g)
-
-
         form = tripForm()
-        return direct_to_template(request, 'home.html', { 'rides' : myRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides })
+        user = User.objects.get(username=request.session['username'])
+        user = Users.objects.get(user=user)
+        return direct_to_template(request, 'home.html', { 'rides' : acceptedRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides, 'user':user})
     
-
     else:
         form = loginForm()
         return direct_to_template(request, 'login.html', { 'form' : form })
 
-def removePassengerFromRideAjax(request):
-    if request.method == 'GET':
-        if request.user.is_authenticated():
-            try:
-                username = request.session['username']
-            except:
-                #We couldn't get the login name
-                #redirect to the login
-                return HttpResponseRedirect(settings.BASE_URL + '/login/')
-            user = User.objects.filter(username=username)
-            currentUser = Users.objects.get(user=user)
-            passenger = TripPassengers.objects.get(id=currrentUser.id)
-        
-            
-            #Select from trip where trippassenger = username and id = given id
-            trip = Trip.objects.filter(id=id, passenger__id__exact=Users.objects.get(user=user).id)
-            if len(trip) > 0:
-                trip[0].passengers.remove(passenger)
-                trip[0].save()
-                results = jsonifyResults(Trip.objects.filter(passengers__id__exact=Users.objects.filter(user=user)))                                      
-                return HttpResponse(results)
-        else:
-            return HttpResponseRedirect(settings.BASE_URL + '/login/')
 
-
-#This function will probably be taken out. The ajax version will be used instead
-def removePassengerFromRide(request, id):
-    # id presents the ID of the TRIP
-    # we need to remove the requested user from being a passenger in the trip
-    if request.user.is_authenticated():
-        
-        try:
-            username = request.session['username']
-        except:
-            #We couldn't get the login name
-            #redirect to the login
-            return HttpResponseRedirect(settings.BASE_URL + '/login/')
-
-        user = User.objects.filter(username=username)
-        currentUser = Users.objects.get(user=user)
-        passenger = TripPassengers.objects.get(id=currentUser.id)
-       
-        if passenger:
-            #Select from Trip where TripPassenger = username and id = given id
-            trip = Trip.objects.filter(id=id, passengers__id__exact=Users.objects.get(user=user).id)
-
-            if len(trip) > 0:
-                trip[0].passengers.remove(passenger)
-                trip[0].save()
-                
-                return HttpResponseRedirect(settings.BASE_URL + '/rides/home/')
-        
-        return HttpResponse("You don't seem to be apart of this ride anyway")
-
-
-def addPassengerToRideAJAX(request):
-    if request.method == 'GET':
-        id = request.GET.get('id', '')
-        if request.user.is_authenticated():
-            user = User.objects.filter(username=username)
-            currentUser = Users.objects.get(user=user)
-            try:
-                passenger = TripPassengers.objects.get(id=currentUser.id)
-            except:
-                passenger = TripPassengers(passenger=currentUser)
-                passenger.save()
-                passenger = TripPassengers.objects.get(id=currentUser.id)
-
-            trip = Trip.objects.get(id=id)
-            trip.passenger.add(passenger)
-            trip.save()
-            results = jsonifyResults(Trip.objects.filter(passengers__id__exact=Users.objects.filter(user=user)))
-            return HttpResponse(results)
-        else:
-            return HttpResponseRedirect(settings.BASE_URL + '/login/')
 
 
 def jsonifyResults(QuerySet):
@@ -197,32 +97,92 @@ def jsonifyResults(QuerySet):
         result['results'] = tempResult
     return json.dumps(result)
 
-#This will probably be removed instead we will use the ajax versions
-def addPassengerToRide(request, id):
-    # id represents the ID of the TRIP
-    # We need to add the requested user to be a passenger in the trip
-    if request.user.is_authenticated():
-        username = request.session['username']
 
-        user = User.objects.filter(username=username)
-        currentUser = Users.objects.get(user=user)
-        try:
-            passenger = TripPassengers.objects.get(id=currentUser.id)
-        except:
-            passenger = TripPassengers(passenger=currentUser)
-            passenger.save()
-            passenger = TripPassengers.objects.get(id=currentUser.id)
-        
+#this function is for when a user wants to join a ride. They first need to ask permission from the host
+# if they are allowed to join
+def askToJoinRide(request):
 
-        trip = Trip.objects.get(id=id)
-        
-        trip.passengers.add(passenger)
-        trip.save()
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            tripId = request.GET.get('tripId', '')
             
-        return HttpResponseRedirect(settings.BASE_URL + '/rides/home/')
-        
-    else:
-        return HttpResponseRedirect('/login/')
+            user = request.session['username']
+
+            #check for proper input
+            if tripId and user:
+                
+                try:
+                    #Try and get the trip based on the tripId given
+                    trip = Trip.objects.get(id=tripId)
+                    #Try and get the rider based on the user
+                    user = User.objects.get(username=user)
+                    rider = Users.objects.get(user=user)
+                    #Try and add the rider to the trip
+                    trip.pendingPassengers.add(rider)
+                    trip.save()
+                except:
+                    return HttpResponse('Not added')
+
+                #Return the list of the users pending trips
+                #return HttpResponse(jsonifyResults(Trip.objects.filter(pendingPassengers__id__exact=Users.objects.filter(user=user))))
+                return HttpResponse('added')
+            return HttpResponse('wrong input')
+        return HttpResponse('not authenticated')
+    return HttpResonse('wrong request type')
+
+
+#this function is for when the host of ride wants to move a user from being a pending rider to being a member of the ride.
+def addPendingRiderToRide(request):
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            #we need the id of the Trip to add the user to
+            tripId = request.GET.get('tripId', '')
+            #We need the id of the rider to add to the trip.
+            #The riderId given should be the id of the USER
+            riderId = request.GET.get('riderId','')
+            
+            if tripId and riderId:
+               try:
+                   #Get the trip
+                   trip = Trip.objects.get(id=tripId)
+                   rider = Users.objects.get(user=riderId)
+                
+                   trip.acceptedPassengers.add(rider)
+                   trip.pendingPassengers.remove(rider)
+                   trip.save()
+                   return HttpResponse('Rider added to trip, pending rider removed')
+               except:
+                   return HttpResponse('')
+            return HttpResponse('import args')
+        return HttpResponse('not authenticated')
+    return HttpResponse('wrong request type')
+            
+
+def removeRiderFromRide(request):
+    if request.method == 'GET':
+        if user.is_authenticated:
+                #we need the id of the Trip to add the user to                                                                                          
+            tripId = request.GET.get('tripId', '')
+
+                #We need the id of the rider to remove from the trip.                                                                                 
+                #The riderId given should be the id of the USER                                                                                        
+            riderId = request.GET.get('riderId','')
+
+            if tripId and riderId:
+                try:
+                   #Get the trip                                                                                                                   
+                    trip = Trip.objects.get(id=tripId)
+                    rider = Users.objects.get(user=riderId)
+
+                    trip.acceptedPassengers.remove(rider)
+                    trip.save()
+                    return HttpResponse('Rider removed from trip')
+                except:
+                    return HttpResponse('')
+            return HttpResponse('import args')
+        return HttpResponse('not authenticated')
+    return HttpResponse('wrong request type')
+
 
 def viewRide(request, id):
     # id represents the ID of the TRIP
