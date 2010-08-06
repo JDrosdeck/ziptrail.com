@@ -1,6 +1,6 @@
 from django.db import models
 from rideShare.geo.models import ZipCode, Position
-
+from django.forms import ModelForm
 
 class Waypoint(models.Model):
     #The title is basically just so when a user enters in a play they'd like
@@ -11,7 +11,13 @@ class Waypoint(models.Model):
     lat_long = models.ForeignKey(Position)
 
     def __unicode__(self):
-        return u'%s, %s' % (self.waypoint, self.zipCode)
+        return u'%s, %s' % (self.title, self.waypoint)
+
+class WaypointForm(ModelForm):
+    class Meta:
+        model = Waypoint
+
+
 
 class Route(models.Model):
     startAddress = models.CharField(max_length=200)

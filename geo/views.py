@@ -5,7 +5,7 @@ from rideShare.geo.models import ZipCode, Position
 from rideShare.myRides.models import University, StudentEmail
 
 def loadZip(request):
-    reader = csv.reader(open("/home/twosprout/zip_codes.csv", "rb"), delimiter=",", quoting=csv.QUOTE_ALL)
+    reader = csv.reader(open("/Users/jdrosdeck/Desktop/zip_codes.csv", "rb"), delimiter=",", quoting=csv.QUOTE_ALL)
 
     for row in reader:
 
@@ -23,7 +23,7 @@ def loadZip(request):
     
 
 def loadSchool(request):
-    reader = csv.reader(open("/home/twosprout/schools.csv", "rb"), delimiter=",", quoting=csv.QUOTE_ALL)
+    reader = csv.reader(open("/Users/jdrosdeck/Desktop/schools.csv", "rb"), delimiter=",", quoting=csv.QUOTE_ALL)
     
     for row in reader:
         name = re.sub("\"", "", row[0])

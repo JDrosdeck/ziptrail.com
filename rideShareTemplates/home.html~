@@ -97,7 +97,7 @@ function showSteps(directionResult)
 
      {% for ride in rides %}
 
-       Heading To:   {{ ride.trip }} <a href="http://dev:8000/rides/remove/{{ride.id}}/{{user.id}}/"> Remove </a><br>
+       Heading To:   {{ ride.trip }} <a href="http://dev:8080/rides/remove/{{ride.id}}/{{user.id}}"> Remove </a><br>
 
      {% endfor %}
 
@@ -113,7 +113,7 @@ function showSteps(directionResult)
 
      {% for ride in availableRides %}
 
-        Ride To : {{ ride.trip }} <a href="http://dev:8000/rides/requestPassenger/?tripId={{ride.id}}"> Add </a> <br>
+        Ride To : {{ ride.trip }} <a href="http://dev:8080/rides/requestPassenger/?tripId={{ride.id}}"> Add </a> <br>
 
      {% endfor %}
 
@@ -127,17 +127,17 @@ function showSteps(directionResult)
 <h1> Rides I'm Hosting </h1>
 {% if hostedRides %}
      {% for ride in hostedRides %}
-
-          Riding to: {{ ride.trip}} <br> 
+       
+         <b> Riding to: {{ ride.trip}}</b> <br> 
        {% for acceptedPassenger in ride.acceptedPassengers.all %}
-               remove: <a href="http://dev:8000/rides/removeRider/?tripId={{ride.id}}&riderId={{acceptedPassenger.user.id}}"{{acceptedPassenger.user.username}}</a>
+              <br> remove: <a href="http://dev:8080/rides/removeRider/?tripId={{ride.id}}&riderId={{acceptedPassenger.user.id}}">{{acceptedPassenger.user.username}}</a>
              {% endfor %}
 
 
              {% for pendingPassenger in ride.pendingPassengers.all %}
-              add: <a href="http://dev:8000/rides/addRider/?tripId={{ride.id}}&riderId={{pendingPassenger.user.id}}" {{pendingPassenger.user.username}}</a>
+             <br> add: <a href="http://dev:8080/rides/addRider/?tripId={{ride.id}}&riderId={{pendingPassenger.user.id}}"> {{pendingPassenger.user.username}}</a>
              {% endfor %}
-
+     <br>
      {% endfor %}
 {% else %}
 
@@ -145,7 +145,7 @@ function showSteps(directionResult)
 {% endif %}
 <h1>Create a Trip</h1>
 
-<form action="http://dev:8000/rides/home/" method="post">
+<form action="http://dev:8080/rides/home/" method="post">
 {% csrf_token %}
 {{ form.as_p }}
 <input type="submit" value="Submit"/>

@@ -51,11 +51,11 @@ MEDIA_ROOT = '/public_html/rideshare.com/rideShare/rideShareTemplates/'
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = 'http://dev:8000/'
+MEDIA_URL = 'http://dev/'
 
 #URL used for internal channeling
-BASE_URL = 'http://dev:8000'
-
+#BASE_URL = 'http://dev:8000'
+BASE_URL=''
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
@@ -86,7 +86,7 @@ ROOT_URLCONF = 'rideShare.urls'
 
 TEMPLATE_DIRS = (
 
-    "/home/twosprout/public_html/rideshare.com/rideShare/rideShareTemplates/"
+    "/Users/jdrosdeck/Sites/rideShare/rideShareTemplates/"
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
