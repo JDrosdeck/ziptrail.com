@@ -15,7 +15,7 @@ from rideShare.geo.models import ZipCode, Position
 
 
 from rideShare.common.forms import loginForm
-from rideShare.myRides.forms import tripForm, waypointForm, waypointsForm
+from rideShare.myRides.forms import tripForm, waypointForm, joinTripForm
 from django.contrib.auth.models import User
 
 import datetime
@@ -90,9 +90,8 @@ def home_View(request):
         test1 = test.waypoints.all()
 
         userName = request.session['username']
-        form = waypointsForm(username=userName)
-        form1 = waypointsForm(username=request.session['username'])
-        return direct_to_template(request, 'home.html', { 'rides' : acceptedRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides, 'user':user, 'trip1': form1})
+        form = tripForm()
+        return direct_to_template(request, 'home.html', { 'rides' : acceptedRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides, 'user':user})
     
     else:
         form = loginForm()
@@ -215,7 +214,41 @@ def askToJoinRide(request):
                 return HttpResponse('added')
             return HttpResponse('wrong input')
         return HttpResponse('not authenticated')
-    return HttpResonse('wrong request type')
+
+    elif request.method == 'POST':
+        if request.user.is_authenticated:
+            print '1'
+            form = joinTripForm(request.POST, username=request.session['username'])
+            if form.is_valid():
+                print '2'
+                tripId = form.cleaned_data['tripId']
+                waypointId = form.cleaned_data['option']
+
+                user = request.session['username']
+                try:
+                    #try to get the trip based on the trip id
+                    trip = Trip.objects.get(id=tripId)
+                    print trip
+                    #Check to see if the rider already ixists in the trip
+                    user = User.objects.get(username=user)
+                    users = Users.objects.get(user=user)
+                    
+                    try:
+                        #See if the user is part of the trip already
+                        riderTrip = UsersTrip.objects.get(user=users, waypoint=waypointId)
+                        included = trip.pendingPassengers.filter(id=riderTrip.id)
+                        return HttpResponse('Your already a pending rider!')
+                    except:
+                        ridersTrip = UsersTrip(user=users, waypoint=waypointId)
+                        ridersTrip.save()
+                        trip.pendingPassengers.add(ridersTrip)
+                        trip.save()
+                        return HttpResponse('You will be notified if you are accepted to the ride')
+                except:
+                    return HttpResponse('not added')
+    else:
+
+        return HttpResponse('wrong request type')
 
 #this function is for when the host of ride wants to move a user from being a pending rider to being a member of the ride.
 def addPendingRiderToRide(request):
@@ -274,11 +307,19 @@ def removeRiderFromRide(request):
     return HttpResponse('wrong request type')
 
 
-def viewRide(request, id):
+#viewRide is where a rider is going to view the details of a ride. See all the information
+#associated with it. And be able to compare the current map to a map of their ride added to the 
+#the trip. They will be able to select any waypoint they have and ask the host to join the trip
+def viewRide(request, tripId):
     # id represents the ID of the TRIP
     # We want to show detailed information about the trip
     # ie. google map. Waypoints, people involved
     
-    matchedTrip = Trip.objects.get(id=id)
+    matchedTrip = Trip.objects.get(id=tripId)
     
-    return direct_to_template(request, 'view.html', { 'trip' : matchedTrip })
+    #get the users waypointdata
+    username = request.session['username']
+    form = joinTripForm(initial={'tripId': tripId }, username=username)
+    
+
+    return direct_to_template(request, 'view.html', { 'trip' : matchedTrip, 'form' : form })

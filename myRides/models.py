@@ -36,7 +36,6 @@ class UsersTrip(models.Model):
     waypoint = models.ForeignKey(Waypoint, blank=True, null=True)
     
 
-
     #waypoints in USERS is used so that we can save their custom waypoints so that they can
     # easily add them again to another ride without having to reenter them. And we don't have to
     # re-grab the information from a mapping service

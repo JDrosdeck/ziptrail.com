@@ -5,14 +5,19 @@ from rideShare.routes.models import Waypoint
 
 
 
-class waypointsForm(forms.Form):
+class joinTripForm(forms.Form):
+
      option = forms.ModelChoiceField(queryset = Waypoint.objects.none())
-
+     tripId = forms.IntegerField(widget=forms.HiddenInput())
+     
      def __init__(self, *args, **kwargs):
-         username = kwargs.pop('username')
-         super(waypointsForm, self).__init__(*args, **kwargs)
-         self.fields["option"].queryset =  Users.objects.get(user = User.objects.get(username=username)).waypoints.all()
-
+          
+          
+          username = kwargs['username']
+          del kwargs['username']
+          super(joinTripForm, self).__init__(*args, **kwargs)
+          self.fields["option"].queryset =  Users.objects.get(user = User.objects.get(username=username)).waypoints.all()
+          
 
 class waypointForm(forms.Form):
     title = forms.CharField(label="Name of waypoint", required=True)
