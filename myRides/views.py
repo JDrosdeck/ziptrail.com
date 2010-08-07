@@ -31,14 +31,14 @@ def home_View(request):
         #get all the rides that their apart of as a passenger
         user = User.objects.get(username=request.session['username'])
         rider = Users.objects.filter(user=user)
-        acceptedRides = Trip.objects.filter(acceptedPassengers__id__exact=rider)
+        acceptedRides = Trip.objects.filter(acceptedPassengers__user__id__exact=rider)
         
         #get all rides that their still pending on as a passenger
-        pendingRides = Trip.objects.filter(pendingPassengers__id__exact=rider)
+        pendingRides = Trip.objects.filter(pendingPassengers__user__id__exact=rider)
         
         #This gets all available rides exlcluding the user from being an acceptedPassenger, pendingPassenger or host
         # Basically any ride they have nothing to do with
-        allRides = Trip.objects.filter().exclude(acceptedPassengers__id__exact=rider).exclude(pendingPassengers__id__exact=rider).exclude(host=rider)
+        allRides = Trip.objects.filter().exclude(acceptedPassengers__user__id__exact=rider).exclude(pendingPassengers__user__id__exact=rider).exclude(host=rider)
 
         #All the rides that the user is hosting
         HostedRides = Trip.objects.filter(host=rider)
@@ -217,10 +217,8 @@ def askToJoinRide(request):
 
     elif request.method == 'POST':
         if request.user.is_authenticated:
-            print '1'
             form = joinTripForm(request.POST, username=request.session['username'])
             if form.is_valid():
-                print '2'
                 tripId = form.cleaned_data['tripId']
                 waypointId = form.cleaned_data['option']
 
@@ -236,7 +234,12 @@ def askToJoinRide(request):
                     try:
                         #See if the user is part of the trip already
                         riderTrip = UsersTrip.objects.get(user=users, waypoint=waypointId)
-                        included = trip.pendingPassengers.filter(id=riderTrip.id)
+                        print riderTrip.user.id
+                        print riderTrip.waypoint.id
+
+                        #If this sql dosen't throw an error then we know that the user is alrady pending in the trip
+                        inTrip = Trip.objects.filter(id=tripId,pendingPassengers__waypoint__id__exact=riderTrip.waypoint.id, pendingPassengers__user__id__exact=riderTrip.user.id)
+                        
                         return HttpResponse('Your already a pending rider!')
                     except:
                         ridersTrip = UsersTrip(user=users, waypoint=waypointId)
@@ -305,6 +308,35 @@ def removeRiderFromRide(request):
             return HttpResponse('import args')
         return HttpResponse('not authenticated')
     return HttpResponse('wrong request type')
+
+
+
+def removeRideMemberShip(request):
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+                #we need the id of the Trip to add the user to                                  
+                                                                                                                 
+            tripId = request.GET.get('tripId', '')
+
+            if tripId:
+                
+                   #Get the trip                         
+                                                                                                               
+                trip = Trip.objects.get(id=tripId)
+                    
+                    #get the rider
+                user = User.objects.get(username=request.session['username'])
+                users = Users.objects.get(user=user)
+                    
+                rider = UsersTrip.objects.get(user=users)
+
+                trip.acceptedPassengers.remove(rider)
+                if rider.waypoint:
+                    trip.trip.waypoints.remove(rider.waypoint)
+                trip.save()
+        return HttpResponse('removed')
+
+
 
 
 #viewRide is where a rider is going to view the details of a ride. See all the information

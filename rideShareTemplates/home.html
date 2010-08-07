@@ -12,7 +12,7 @@
 
      {% for ride in rides %}
 
-       Heading To:   {{ ride.trip }} <a href="/rides/remove/{{ride.id}}/{{user.id}}"> Remove </a><br>
+       Heading To:   {{ ride.trip }} <a href="/rides/cancelPassenger/?tripId={{ride.id}}"> Remove </a><br>
 
      {% endfor %}
 

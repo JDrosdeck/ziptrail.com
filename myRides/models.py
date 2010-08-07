@@ -34,7 +34,9 @@ class Users(models.Model):
 class UsersTrip(models.Model):
     user = models.ForeignKey(Users)
     waypoint = models.ForeignKey(Waypoint, blank=True, null=True)
-    
+
+    def __unicode__(self):
+        return u'%s, %s' % (self.user.user.username, self.waypoint.waypoint)
 
     #waypoints in USERS is used so that we can save their custom waypoints so that they can
     # easily add them again to another ride without having to reenter them. And we don't have to
