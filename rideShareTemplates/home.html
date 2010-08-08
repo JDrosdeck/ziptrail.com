@@ -10,9 +10,9 @@
 <h1>Rides coming up..</h1>
 {% if rides %}
 
-     {% for ride in rides %}
-
-       Heading To:   {{ ride.trip }} <a href="/rides/cancelPassenger/?tripId={{ride.id}}"> Remove </a><br>
+     {% for x in lst %}
+       
+       Heading To:   {{ x.waypointName }} <a href="/rides/removeRider/?tripId={{x.acceptedRides}}&ridersTripId={{x.id}}"> Remove </a><br>
 
      {% endfor %}
 

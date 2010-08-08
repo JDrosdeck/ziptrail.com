@@ -5,7 +5,6 @@ urlpatterns = patterns('rideShare.myRides.views',
                      (r'^view/(?P<tripId>\d+)/$', 'viewRide'),
                      (r'^requestPassenger/$', 'askToJoinRide'),
                      (r'^removeRider/$', 'removeRiderFromRide'),
-                     (r'^cancelPassenger/$', 'removeRideMemberShip'),
                      ('^addRider/$', 'addPendingRiderToRide'),
                      ('^addWaypoint/$', 'CreateNewWaypoint'),
                     

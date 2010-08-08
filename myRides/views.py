@@ -31,8 +31,34 @@ def home_View(request):
         #get all the rides that their apart of as a passenger
         user = User.objects.get(username=request.session['username'])
         rider = Users.objects.filter(user=user)
+
+        acceptedRideIDs =[]
+        waypointName = []
+        IDs = []
         acceptedRides = Trip.objects.filter(acceptedPassengers__user__id__exact=rider)
+        for x in acceptedRides:
+            acceptedRideIDs.append(x.id)
+            print x.id
+
+            for y in x.acceptedPassengers.all():
+                print x.acceptedPassengers.all().values()
+                IDs.append(y.id)
+                waypointName.append(y.waypoint.title)
+               
+                print y.id
+                print y.waypoint.title
+
+        print acceptedRideIDs
+        print waypointName
+        print IDs
+
+        lst = [{'waypointName':t[0],'acceptedRides': t[1], 'id':t[2]} for t in zip(waypointName,acceptedRideIDs, IDs)]
+        print lst
         
+
+        print acceptedRides.values()
+
+
         #get all rides that their still pending on as a passenger
         pendingRides = Trip.objects.filter(pendingPassengers__user__id__exact=rider)
         
@@ -91,7 +117,7 @@ def home_View(request):
 
         userName = request.session['username']
         form = tripForm()
-        return direct_to_template(request, 'home.html', { 'rides' : acceptedRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides, 'user':user})
+        return direct_to_template(request, 'home.html', { 'rides' : acceptedRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides, 'user':user, 'lst' : lst})
     
     else:
         form = loginForm()
@@ -164,9 +190,6 @@ def CreateNewWaypoint(request):
     return direct_to_template(request, 'newWaypoint.html', { 'form' : form })
 
     
-
-
-
 def jsonifyResults(QuerySet):
     result = dict()
     tempResult = []
@@ -180,42 +203,7 @@ def jsonifyResults(QuerySet):
 # if they are allowed to join
 def askToJoinRide(request):
 
-    if request.method == 'GET':
-        if request.user.is_authenticated:
-            tripId = request.GET.get('tripId', '')
-            wayPointId = request.GET.get('wayPointId', '')
-            
-            user = request.session['username']
-
-            #check for proper input
-            if tripId and user:
-                
-                try:
-                    #Try and get the trip based on the tripId given
-                    trip = Trip.objects.get(id=tripId)
-                    
-                    #Based on the waypoint ID and the user. check to see if the info already
-                    # exists in UsersTrip
-                    #First get the user
-                    user = User.objects.get(username=user)
-                    users = Users.objects.get(user=user)
-                    #Get the id of the UsersTrip
-                    
-                    ridersTrip = UsersTrip.objects.get_or_create(user=users, waypoint=wayPointId)
-                    #Add the rider to the pending riders list for review
-                    trip.pendingPassengers.add(ridersTrip)
-                    trip.save()
-
-                except:
-                    return HttpResponse('Not added')
-
-                #Return the list of the users pending trips
-                #return HttpResponse(jsonifyResults(Trip.objects.filter(pendingPassengers__id__exact=Users.objects.filter(user=user))))
-                return HttpResponse('added')
-            return HttpResponse('wrong input')
-        return HttpResponse('not authenticated')
-
-    elif request.method == 'POST':
+    if request.method == 'POST':
         if request.user.is_authenticated:
             form = joinTripForm(request.POST, username=request.session['username'])
             if form.is_valid():
@@ -223,32 +211,44 @@ def askToJoinRide(request):
                 waypointId = form.cleaned_data['option']
 
                 user = request.session['username']
-                try:
+                
                     #try to get the trip based on the trip id
-                    trip = Trip.objects.get(id=tripId)
-                    print trip
+                trip = Trip.objects.get(id=tripId)
                     #Check to see if the rider already ixists in the trip
-                    user = User.objects.get(username=user)
-                    users = Users.objects.get(user=user)
+                    #user = User.objects.get(username=user)
+                users = Users.objects.get(user__username=user)
                     
-                    try:
+                    
                         #See if the user is part of the trip already
-                        riderTrip = UsersTrip.objects.get(user=users, waypoint=waypointId)
-                        print riderTrip.user.id
-                        print riderTrip.waypoint.id
+                print users.id
+                print waypointId.id
+                riderTrip = UsersTrip.objects.filter(user=users, waypoint=waypointId)
+                if len(riderTrip) == 0:
+                    ridersTrip = UsersTrip(user=users, waypoint=waypointId)
+                    ridersTrip.save()
+                    trip.pendingPassengers.add(ridersTrip)
+                    trip.save()
+                    return HttpResponse('You will be notified if you are accepted to the ride')
 
+                else:
+                    riderTrip = riderTrip[0]
+                    print riderTrip.user.id
+                    print riderTrip.waypoint.id
+                
                         #If this sql dosen't throw an error then we know that the user is alrady pending in the trip
-                        inTrip = Trip.objects.filter(id=tripId,pendingPassengers__waypoint__id__exact=riderTrip.waypoint.id, pendingPassengers__user__id__exact=riderTrip.user.id)
-                        
+                    inTrip = Trip.objects.filter(id=tripId,pendingPassengers__waypoint__id__exact=riderTrip.waypoint.id, pendingPassengers__user__id__exact=riderTrip.user.id).count()
+                    print inTrip
+                    if inTrip != 0:
+                        print inTrip
                         return HttpResponse('Your already a pending rider!')
-                    except:
+                    else:
                         ridersTrip = UsersTrip(user=users, waypoint=waypointId)
                         ridersTrip.save()
                         trip.pendingPassengers.add(ridersTrip)
                         trip.save()
                         return HttpResponse('You will be notified if you are accepted to the ride')
-                except:
-                    return HttpResponse('not added')
+                #except:
+                #    return HttpResponse('not added')
     else:
 
         return HttpResponse('wrong request type')
@@ -293,50 +293,23 @@ def removeRiderFromRide(request):
             
 
             if tripId and ridersTripId:
-                try:
-                   #Get the trip                                                                                                                   
-                    trip = Trip.objects.get(id=tripId)
-                    rider = UsersTrip.objects.get(id=ridersTripId)
-
-                    trip.acceptedPassengers.remove(rider)
-                    if rider.waypoint:
-                        trip.trip.waypoints.remove(rider.waypoint)
-                    trip.save()
-                    return HttpResponse('Rider removed from trip')
-                except:
-                    return HttpResponse('')
-            return HttpResponse('import args')
-        return HttpResponse('not authenticated')
-    return HttpResponse('wrong request type')
-
-
-
-def removeRideMemberShip(request):
-    if request.method == 'GET':
-        if request.user.is_authenticated:
-                #we need the id of the Trip to add the user to                                  
-                                                                                                                 
-            tripId = request.GET.get('tripId', '')
-
-            if tripId:
                 
-                   #Get the trip                         
-                                                                                                               
+                   #Get the trip
+                print '--------------------'
                 trip = Trip.objects.get(id=tripId)
-                    
-                    #get the rider
-                user = User.objects.get(username=request.session['username'])
-                users = Users.objects.get(user=user)
-                    
-                rider = UsersTrip.objects.get(user=users)
-
+                print trip
+                rider = UsersTrip.objects.get(id=ridersTripId)
+                print rider
                 trip.acceptedPassengers.remove(rider)
                 if rider.waypoint:
                     trip.trip.waypoints.remove(rider.waypoint)
-                trip.save()
-        return HttpResponse('removed')
-
-
+                    trip.save()
+                    return HttpResponse('Rider removed from trip')
+                #except:
+                 #   return HttpResponse('')
+            return HttpResponse('import args')
+        return HttpResponse('not authenticated')
+    return HttpResponse('wrong request type')
 
 
 #viewRide is where a rider is going to view the details of a ride. See all the information
