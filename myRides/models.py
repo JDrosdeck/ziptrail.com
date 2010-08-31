@@ -5,6 +5,7 @@ from rideShare.routes.models import Route, Waypoint
 from rideShare.geo.models import ZipCode, Position
 from django.forms import ModelForm
 
+
 class StudentEmail(models.Model):
     email = models.CharField(max_length=35)
 
@@ -29,8 +30,6 @@ class Users(models.Model):
     def __unicode__(self):
         return u'%s' % (self.user.username)
 
-
-
 class UsersTrip(models.Model):
     user = models.ForeignKey(Users)
     waypoint = models.ForeignKey(Waypoint, blank=True, null=True)
@@ -44,12 +43,14 @@ class UsersTrip(models.Model):
 
     #pendingWaypoints is used in TRIP to make it easier to map the USERS to the waypoints. When they are accepted
     # to the trip we add it to the trips actual waypoint list.
+
 class Trip(models.Model):
     host = models.ForeignKey(Users)
     trip = models.ForeignKey(Route)
     acceptedPassengers = models.ManyToManyField(UsersTrip, blank=True, null=True, related_name='accepted passengers')
     pendingPassengers = models.ManyToManyField(UsersTrip, blank=True, null=True, related_name='pending passengers')
     public = models.BooleanField(blank=False, null=False, default=False)
+    MaskEndpoint = models.BooleanField(blank=False, null=False, default=False)
     def __unicode__(self):
         return u'Host: %s, Start: %s, End: %s' % (self.host.user.username, self.trip.startAddress, self.trip.endAddress) 
 

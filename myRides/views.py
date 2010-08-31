@@ -32,32 +32,27 @@ def home_View(request):
         user = User.objects.get(username=request.session['username'])
         rider = Users.objects.filter(user=user)
 
+        #Explination of whats going on here: In order to allow a person to remove themselves from a ride
+        # we need to have the id of the ride they belong to as well as the id of the Users trip (Waypoint id)
+ 
         acceptedRideIDs =[]
         waypointName = []
-        IDs = []
+        ridersTripId = []
         acceptedRides = Trip.objects.filter(acceptedPassengers__user__id__exact=rider)
         for x in acceptedRides:
+            #This will append the id of the ride to the acceotedRideIDs list
             acceptedRideIDs.append(x.id)
-            print x.id
-
+           
             for y in x.acceptedPassengers.all():
-                print x.acceptedPassengers.all().values()
-                IDs.append(y.id)
+                #This will append the riders tripId and the waypoint name for easy viewing in the template
+                ridersTripId.append(y.id)
                 waypointName.append(y.waypoint.title)
                
-                print y.id
-                print y.waypoint.title
-
-        print acceptedRideIDs
-        print waypointName
-        print IDs
-
-        lst = [{'waypointName':t[0],'acceptedRides': t[1], 'id':t[2]} for t in zip(waypointName,acceptedRideIDs, IDs)]
-        print lst
-        
-
-        print acceptedRides.values()
-
+      
+        #This will combine the three lists above into one list. This needs to be done because in the django template
+        # system there is no way to iterate over multiple lists in one pass like there is in regular python
+        lst = [{'waypointName':t[0],'acceptedRides': t[1], 'id':t[2]} for t in zip(waypointName,acceptedRideIDs, ridersTripId)]
+     
 
         #get all rides that their still pending on as a passenger
         pendingRides = Trip.objects.filter(pendingPassengers__user__id__exact=rider)
@@ -110,14 +105,11 @@ def home_View(request):
 
         user = User.objects.get(username=request.session['username'])
         user = Users.objects.get(user=user)
+        #print user.university.name
+        #print user
         
-    
-        test = Users.objects.get(user = User.objects.get(username=request.session['username']))
-        test1 = test.waypoints.all()
-
-        userName = request.session['username']
         form = tripForm()
-        return direct_to_template(request, 'home.html', { 'rides' : acceptedRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides, 'user':user, 'lst' : lst})
+        return direct_to_template(request, 'home.html', { 'rides' : acceptedRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides, 'userInfo': user, 'lst' : lst })
     
     else:
         form = loginForm()
@@ -129,7 +121,7 @@ def CreateNewWaypoint(request):
     if request.method == 'GET':
         if request.user.is_authenticated:
             title = request.GET.get('title', '')
-            address = request.GET.get('address','')
+            address = request.GET.get('add','')
             lat = request.GET.get('lat','')
             lng = request.GET.get('lng','')
             
@@ -212,16 +204,15 @@ def askToJoinRide(request):
 
                 user = request.session['username']
                 
-                    #try to get the trip based on the trip id
+                #try to get the trip based on the trip id
                 trip = Trip.objects.get(id=tripId)
-                    #Check to see if the rider already ixists in the trip
-                    #user = User.objects.get(username=user)
+               
+
+                
                 users = Users.objects.get(user__username=user)
                     
                     
-                        #See if the user is part of the trip already
-                print users.id
-                print waypointId.id
+                #See if the user is part of the trip already
                 riderTrip = UsersTrip.objects.filter(user=users, waypoint=waypointId)
                 if len(riderTrip) == 0:
                     ridersTrip = UsersTrip(user=users, waypoint=waypointId)
@@ -232,26 +223,23 @@ def askToJoinRide(request):
 
                 else:
                     riderTrip = riderTrip[0]
-                    print riderTrip.user.id
-                    print riderTrip.waypoint.id
-                
-                        #If this sql dosen't throw an error then we know that the user is alrady pending in the trip
+                    
+                    #If this sql dosen't return a 0 we know the user is already in the trip
                     inTrip = Trip.objects.filter(id=tripId,pendingPassengers__waypoint__id__exact=riderTrip.waypoint.id, pendingPassengers__user__id__exact=riderTrip.user.id).count()
-                    print inTrip
+                   
+
                     if inTrip != 0:
-                        print inTrip
                         return HttpResponse('Your already a pending rider!')
+
                     else:
                         ridersTrip = UsersTrip(user=users, waypoint=waypointId)
                         ridersTrip.save()
                         trip.pendingPassengers.add(ridersTrip)
                         trip.save()
                         return HttpResponse('You will be notified if you are accepted to the ride')
-                #except:
-                #    return HttpResponse('not added')
     else:
-
         return HttpResponse('wrong request type')
+
 
 #this function is for when the host of ride wants to move a user from being a pending rider to being a member of the ride.
 def addPendingRiderToRide(request):
