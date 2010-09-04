@@ -89,10 +89,9 @@ def home_View(request):
                 host.car=Car.objects.get(seats=int(freeSeats))
                 host.save()
                             
-                startLatLong = Position(latitude=0.0, longitude=0.0)
-                endLatLong = Position(latitude=0.0, longitude=0.0)
-                startLatLong.save()
-                endLatLong.save()
+                startLatLong, createdStart = Position.objects.get_or_create(latitude=0.0, longitude=0.0)
+                endLatLong, createdEnd = Position.objects.get_or_create(latitude=0.0, longitude=0.0)
+                
                 route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=32, gallonsGas=32)
                 route.save()
                                                                      
@@ -105,9 +104,7 @@ def home_View(request):
 
         user = User.objects.get(username=request.session['username'])
         user = Users.objects.get(user=user)
-        #print user.university.name
-        #print user
-        
+               
         form = tripForm()
         return direct_to_template(request, 'home.html', { 'rides' : acceptedRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides, 'userInfo': user, 'lst' : lst })
     
@@ -126,21 +123,19 @@ def CreateNewWaypoint(request):
             lng = request.GET.get('lng','')
             
             if title and address and lat and lng:
-#                try:
-                    #Save the lat and lng
+
+                #Save the lat and lng
                 pos = Position.objects.get_or_create(latitude=float(lat),longitude=float(lng))
                     
-                    #Create the waypoint
+                #Create the waypoint
                 waypoint = Waypoint.objects.get_or_create(title=title, waypoint=address, lat_long=pos)
                 
-                    #Add the waypoint to the list of users waypoints
+                #Add the waypoint to the list of users waypoints
                 user = User.objects.get(username=request.session['username'])
                 user = Users.objects.get(user=user)
                 user.waypoints.add(waypoint)
                 return HttpResponse('waypoint added')
-                #except:
-                #    return HttpResponse('waypoint not added')
-            
+                
             form = waypointForm()
             return direct_to_template(request, 'newWaypoint.html', { 'form' : form })
 
