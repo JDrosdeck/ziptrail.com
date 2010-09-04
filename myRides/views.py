@@ -13,7 +13,6 @@ from rideShare.routes.models import Waypoint, Route, WaypointForm
 from rideShare.vehicle.models import Car
 from rideShare.geo.models import ZipCode, Position
 
-
 from rideShare.common.forms import loginForm
 from rideShare.myRides.forms import tripForm, waypointForm, joinTripForm
 from django.contrib.auth.models import User
@@ -64,8 +63,6 @@ def home_View(request):
         #All the rides that the user is hosting
         HostedRides = Trip.objects.filter(host=rider)
         
-        
-
         #Check to see if they've added a new ride.
         #The ride information is all going to be created client side
         # with javascript. We will be recieving the following information about
@@ -94,7 +91,7 @@ def home_View(request):
                 
                 route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=32, gallonsGas=32)
                 route.save()
-                                                                     
+                                                                   
                 #Create a new Trip, 
                 newRide = Trip(host=host, trip=route)
                 newRide.save()
@@ -150,27 +147,14 @@ def CreateNewWaypoint(request):
                 lat = 0.0
                 lng= 0.345
 
-                try:
-                    pos = Position.objects.get(latitude=lat, longitude=lng)
                 
-                except:
-                    pos = Position(latitude=lat, longitude=lng)
-                    pos.save()
-                    pos = Position.objects.get(latitude=lat, longitude=lng)
-                    print pos
-                
-                try:
-                    waypoint = Waypoint.objects.get(title=str(title), waypoint=str(address), lat_long=pos)
-                except:
-                    waypoint = Waypoint(title=str(title), waypoint=str(address), lat_long=pos)
-                    waypoint.save()
-
+                pos, created = Position.objects.get_or_create(latitude=lat, longitude=lng)
+                waypoint, created = Waypoint.objects.get_or_create(title=str(title), waypoint=str(address), lat_long=pos)
+                    
                 user = User.objects.get(username=request.session['username'])
                 user = Users.objects.get(user=user)
                 user.waypoints.add(waypoint)
                 return HttpResponse('waypoint added')
-                #except:
-                #    return HttpResponse('waypoint not added')
     else:
         form = waypointForm()
         
