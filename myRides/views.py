@@ -186,11 +186,8 @@ def askToJoinRide(request):
                 #try to get the trip based on the trip id
                 trip = Trip.objects.get(id=tripId)
                
-
-                
                 users = Users.objects.get(user__username=user)
-                    
-                    
+                                   
                 #See if the user is part of the trip already
                 riderTrip = UsersTrip.objects.filter(user=users, waypoint=waypointId)
                 if len(riderTrip) == 0:
@@ -249,7 +246,6 @@ def addPendingRiderToRide(request):
         return HttpResponse('not authenticated')
     return HttpResponse('wrong request type')
             
-
 def removeRiderFromRide(request):
     if request.method == 'GET':
         if request.user.is_authenticated:
@@ -277,6 +273,34 @@ def removeRiderFromRide(request):
             return HttpResponse('import args')
         return HttpResponse('not authenticated')
     return HttpResponse('wrong request type')
+
+def cancelRide(request):
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            #We need the id of the trip to remove
+            tripId = request.GET.get('tripId','')
+            
+            if tripId:
+                #Get the user
+                user = User.objects.get(username=request.session['username'])
+                rider = Users.objects.get(user=user)
+                #Query for the trip
+                try:
+                    trip = Trip.objects.get(id=tripId)
+                    if trip.host == rider:
+                        for acceptedPassenger, pendingPassenger in map(None,trip.acceptedPassengers.all(), trip.pendingPassengers.all()):
+                            trip.acceptedPassengers.remove(acceptedPassenger)
+                            trip.pendingPassengers.remove(pendingPassenger)
+                        
+                        trip.delete()
+                        return HttpResponse("Ride canceled")
+                    else:
+                        return HttpResponse("you can't delete a ride you're not a host of..jerk")
+                            
+                except:
+                    return HttpResponse("error finding trip:Delete Ride")
+                
+                
 
 
 #viewRide is where a rider is going to view the details of a ride. See all the information

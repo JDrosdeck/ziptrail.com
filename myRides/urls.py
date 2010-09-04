@@ -7,5 +7,6 @@ urlpatterns = patterns('rideShare.myRides.views',
                      (r'^removeRider/$', 'removeRiderFromRide'),
                      ('^addRider/$', 'addPendingRiderToRide'),
                      ('^addWaypoint/$', 'CreateNewWaypoint'),
+                     ('^cancelRide/$', 'cancelRide'),
                     
 )
