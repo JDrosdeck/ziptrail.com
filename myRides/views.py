@@ -6,6 +6,7 @@ from django.contrib.sessions.models import Session
 from django import forms
 from django.conf import settings
 from django.utils import simplejson as json
+from django.contrib.auth.models import User
 
 #Database models
 from rideShare.myRides.models import Users, Trip, UsersTrip
@@ -13,15 +14,14 @@ from rideShare.routes.models import Waypoint, Route, WaypointForm
 from rideShare.vehicle.models import Car
 from rideShare.geo.models import ZipCode, Position
 
+#Forms
 from rideShare.common.forms import loginForm
 from rideShare.myRides.forms import tripForm, waypointForm, joinTripForm
-from django.contrib.auth.models import User
 
 import datetime
 
 # This is going to show a users home, and allow them to create a ride
 # or join a ride
-
 def home_View(request):
 
     #Make sure the user is logged in
@@ -29,7 +29,7 @@ def home_View(request):
                 
         #get all the rides that their apart of as a passenger
         user = User.objects.get(username=request.session['username'])
-        rider = Users.objects.filter(user=user)
+        rider = Users.objects.get(user=user)
 
         #Explination of whats going on here: In order to allow a person to remove themselves from a ride
         # we need to have the id of the ride they belong to as well as the id of the Users trip (Waypoint id)
@@ -37,7 +37,7 @@ def home_View(request):
         acceptedRideIDs =[]
         waypointName = []
         ridersTripId = []
-        acceptedRides = Trip.objects.filter(acceptedPassengers__user__id__exact=rider)
+        acceptedRides = Trip.objects.filter(acceptedPassengers__user__id__exact=rider.id)
         for x in acceptedRides:
             #This will append the id of the ride to the acceotedRideIDs list
             acceptedRideIDs.append(x.id)
@@ -46,19 +46,18 @@ def home_View(request):
                 #This will append the riders tripId and the waypoint name for easy viewing in the template
                 ridersTripId.append(y.id)
                 waypointName.append(y.waypoint.title)
-               
-      
+                     
         #This will combine the three lists above into one list. This needs to be done because in the django template
         # system there is no way to iterate over multiple lists in one pass like there is in regular python
         lst = [{'waypointName':t[0],'acceptedRides': t[1], 'id':t[2]} for t in zip(waypointName,acceptedRideIDs, ridersTripId)]
      
 
         #get all rides that their still pending on as a passenger
-        pendingRides = Trip.objects.filter(pendingPassengers__user__id__exact=rider)
+        pendingRides = Trip.objects.filter(pendingPassengers__user__id__exact=rider.id)
         
         #This gets all available rides exlcluding the user from being an acceptedPassenger, pendingPassenger or host
         # Basically any ride they have nothing to do with
-        allRides = Trip.objects.filter().exclude(acceptedPassengers__user__id__exact=rider).exclude(pendingPassengers__user__id__exact=rider).exclude(host=rider)
+        allRides = Trip.objects.filter(host__university=rider.university).exclude(acceptedPassengers__user__id__exact=rider.id).exclude(pendingPassengers__user__id__exact=rider.id).exclude(host=rider)
 
         #All the rides that the user is hosting
         HostedRides = Trip.objects.filter(host=rider)
@@ -96,8 +95,6 @@ def home_View(request):
                 newRide = Trip(host=host, trip=route)
                 newRide.save()
                 return HttpResponseRedirect(settings.BASE_URL + '/rides/home')
-         
-
 
         user = User.objects.get(username=request.session['username'])
         user = Users.objects.get(user=user)
@@ -122,10 +119,10 @@ def CreateNewWaypoint(request):
             if title and address and lat and lng:
 
                 #Save the lat and lng
-                pos = Position.objects.get_or_create(latitude=float(lat),longitude=float(lng))
+                pos, created  = Position.objects.get_or_create(latitude=float(lat),longitude=float(lng))
                     
                 #Create the waypoint
-                waypoint = Waypoint.objects.get_or_create(title=title, waypoint=address, lat_long=pos)
+                waypoint, created  = Waypoint.objects.get_or_create(title=title, waypoint=address, lat_long=pos)
                 
                 #Add the waypoint to the list of users waypoints
                 user = User.objects.get(username=request.session['username'])
@@ -147,7 +144,6 @@ def CreateNewWaypoint(request):
                 lat = 0.0
                 lng= 0.345
 
-                
                 pos, created = Position.objects.get_or_create(latitude=lat, longitude=lng)
                 waypoint, created = Waypoint.objects.get_or_create(title=str(title), waypoint=str(address), lat_long=pos)
                     
@@ -164,8 +160,8 @@ def CreateNewWaypoint(request):
 def jsonifyResults(QuerySet):
     result = dict()
     tempResult = []
-    for result in QuerySet:
-        tempResult.append(result)
+    for query in QuerySet:
+        tempResult.append(query)
         result['results'] = tempResult
     return json.dumps(result)
 

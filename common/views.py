@@ -71,7 +71,6 @@ def isEmailDomainValid(request):
             except:
                 return HttpResponse('False')
 
-
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -146,8 +145,6 @@ def register(request):
                 #We were given an id, and that should represent the university
                 else:
                     university = University.objects.filter(id=id)
-
-
 
             user = User.objects.create_user(email,email,password)
             newUser = Users(user=user, university = university[0])
