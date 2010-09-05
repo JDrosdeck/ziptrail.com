@@ -98,7 +98,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
-    'django_extensions',
+   # 'django_extensions',
     'rideShare.myRides',
     'rideShare.routes',
     'rideShare.myMessages',
