@@ -7,6 +7,7 @@ from django import forms
 from django.conf import settings
 from django.utils import simplejson as json
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 #Database models
 from rideShare.myRides.models import Users, Trip, UsersTrip
@@ -82,7 +83,7 @@ def home_View(request):
                 
                 host = User.objects.get(username=request.session['username'])
                 host = Users.objects.get(user=host)
-                host.car=Car.objects.get(seats=int(freeSeats))
+                host.car = Car.objects.get(seats=int(freeSeats))
                 host.save()
                             
                 startLatLong, createdStart = Position.objects.get_or_create(latitude=0.0, longitude=0.0)
@@ -178,37 +179,27 @@ def askToJoinRide(request):
                 waypointId = form.cleaned_data['option']
 
                 user = request.session['username']
-                
-                #try to get the trip based on the trip id
-                trip = Trip.objects.get(id=tripId)
-               
                 users = Users.objects.get(user__username=user)
-                                   
-                #See if the user is part of the trip already
-                riderTrip = UsersTrip.objects.filter(user=users, waypoint=waypointId)
-                if len(riderTrip) == 0:
-                    ridersTrip = UsersTrip(user=users, waypoint=waypointId)
-                    ridersTrip.save()
+                
+                ridersTrip, created = UsersTrip.objects.get_or_create(user=users, waypoint=waypointId)
+              
+                # There were already some pending passengers, so here we make sure
+                # that none of the pending passengers are the user trying to double
+                # up their request                    
+                
+                #If this sql dosen't return a 0 we know the user is already in the trip
+                isUserInTrip = (Q(id=tripId,pendingPassengers__waypoint__id__exact=ridersTrip.waypoint.id, pendingPassengers__user__id__exact=ridersTrip.user.id) | Q(id=tripId,acceptedPassengers__waypoint__id__exact=ridersTrip.waypoint.id, acceptedPassengers__user__id__exact=ridersTrip.user.id))
+                    
+                inTrip = Trip.objects.filter(isUserInTrip).count()
+                   
+                if inTrip != 0:
+                    return HttpResponse('Your already a pending/accepted rider!')
+
+                else:
+                    trip = Trip.objects.get(id=tripId)
                     trip.pendingPassengers.add(ridersTrip)
                     trip.save()
                     return HttpResponse('You will be notified if you are accepted to the ride')
-
-                else:
-                    riderTrip = riderTrip[0]
-                    
-                    #If this sql dosen't return a 0 we know the user is already in the trip
-                    inTrip = Trip.objects.filter(id=tripId,pendingPassengers__waypoint__id__exact=riderTrip.waypoint.id, pendingPassengers__user__id__exact=riderTrip.user.id).count()
-                   
-
-                    if inTrip != 0:
-                        return HttpResponse('Your already a pending rider!')
-
-                    else:
-                        ridersTrip = UsersTrip(user=users, waypoint=waypointId)
-                        ridersTrip.save()
-                        trip.pendingPassengers.add(ridersTrip)
-                        trip.save()
-                        return HttpResponse('You will be notified if you are accepted to the ride')
     else:
         return HttpResponse('wrong request type')
 
@@ -222,7 +213,6 @@ def addPendingRiderToRide(request):
             #We need the id of the ridersTrip to add to the trip.
             ridersTripId = request.GET.get('ridersTripId','')
 
-            
             if tripId and ridersTripId:
                try:
                    #Get the trip
@@ -244,28 +234,23 @@ def addPendingRiderToRide(request):
             
 def removeRiderFromRide(request):
     if request.method == 'GET':
-        if request.user.is_authenticated:
-                #we need the id of the Trip to add the user to                                                                                          
-            tripId = request.GET.get('tripId', '')
 
+        if request.user.is_authenticated:
+            
+            tripId = request.GET.get('tripId', '')
             ridersTripId = request.GET.get('ridersTripId','')
             
-
             if tripId and ridersTripId:
                 
-                   #Get the trip
-                print '--------------------'
                 trip = Trip.objects.get(id=tripId)
-                print trip
                 rider = UsersTrip.objects.get(id=ridersTripId)
-                print rider
                 trip.acceptedPassengers.remove(rider)
+
                 if rider.waypoint:
                     trip.trip.waypoints.remove(rider.waypoint)
                     trip.save()
                     return HttpResponse('Rider removed from trip')
-                #except:
-                 #   return HttpResponse('')
+
             return HttpResponse('import args')
         return HttpResponse('not authenticated')
     return HttpResponse('wrong request type')
