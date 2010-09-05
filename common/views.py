@@ -72,6 +72,7 @@ def isEmailDomainValid(request):
                 return HttpResponse('False')
 
 def register(request):
+
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
