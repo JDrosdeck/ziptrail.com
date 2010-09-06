@@ -82,11 +82,11 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.transaction.TransactionMiddleware',
 )
 
-ROOT_URLCONF = 'rideShare.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
 
-    "/Users/jdrosdeck/Sites/rideShare/rideShareTemplates/"
+    "/Users/jdrosdeck/Sites/ziptrail.com/ziptrail/rideShareTemplates/"
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -99,13 +99,13 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
    # 'django_extensions',
-    'rideShare.myRides',
-    'rideShare.routes',
-    'rideShare.myMessages',
-    'rideShare.vehicle',
-    'rideShare.common',
-    'rideShare.geo',
-    'rideShare.search',
+    'myRides',
+    'routes',
+    'myMessages',
+    'vehicle',
+    'common',
+    'geo',
+    'search',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
 )

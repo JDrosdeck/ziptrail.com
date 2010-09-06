@@ -1,4 +1,4 @@
-from rideShare.vehicle.models import Car
+from vehicle.models import Car
 
 from django.contrib import admin
 

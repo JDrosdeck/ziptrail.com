@@ -1,8 +1,8 @@
 import csv
 import re
 from django.http import HttpResponse
-from rideShare.geo.models import ZipCode, Position
-from rideShare.myRides.models import University, StudentEmail
+from geo.models import ZipCode, Position
+from myRides.models import University, StudentEmail
 
 def loadZip(request):
     reader = csv.reader(open("/Users/jdrosdeck/Desktop/zip_codes.csv", "rb"), delimiter=",", quoting=csv.QUOTE_ALL)

@@ -8,9 +8,9 @@ from django.shortcuts import render_to_response
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from rideShare.common.forms import RegistrationForm, loginForm
-from rideShare.myRides.models import Users, University, StudentEmail
-from rideShare.geo.models import ZipCode
+from common.forms import RegistrationForm, loginForm
+from myRides.models import Users, University, StudentEmail
+from geo.models import ZipCode
 
 from django.contrib.sessions.models import Session
 from django.utils import simplejson as json

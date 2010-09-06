@@ -9,10 +9,10 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Example:
-    (r'^', include('rideShare.common.urls')),
-    (r'^rides/', include('rideShare.myRides.urls')),
-    (r'^load/', include('rideShare.geo.urls')),
-    (r'^', include('rideShare.search.urls')),
+    (r'^', include('common.urls')),
+    (r'^rides/', include('myRides.urls')),
+    (r'^load/', include('geo.urls')),
+    (r'^', include('search.urls')),
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT }),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 

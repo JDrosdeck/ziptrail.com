@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
-from rideShare.myRides.models import Users, User
-from rideShare.routes.models import Waypoint
+from myRides.models import Users, User
+from routes.models import Waypoint
 
 
 

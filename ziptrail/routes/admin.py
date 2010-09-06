@@ -1,4 +1,4 @@
-from rideShare.routes.models import Route, Waypoint
+from routes.models import Route, Waypoint
 from django.contrib import admin
 
 admin.site.register(Route)

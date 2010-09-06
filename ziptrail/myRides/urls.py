@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('rideShare.myRides.views',
+urlpatterns = patterns('myRides.views',
                      (r'^home/$', 'home_View'),
                      (r'^view/(?P<tripId>\d+)/$', 'viewRide'),
                      (r'^requestPassenger/$', 'askToJoinRide'),

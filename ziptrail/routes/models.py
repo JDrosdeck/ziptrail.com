@@ -1,5 +1,5 @@
 from django.db import models
-from rideShare.geo.models import ZipCode, Position
+from geo.models import ZipCode, Position
 from django.forms import ModelForm
 
 class Waypoint(models.Model):

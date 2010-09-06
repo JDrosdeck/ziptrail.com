@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('rideShare.search.views',
+urlpatterns = patterns('search.views',
                       ('^search/$', 'search'),
 )

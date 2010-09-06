@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-from rideShare.vehicle.models import Car
-from rideShare.routes.models import Route, Waypoint
-from rideShare.geo.models import ZipCode, Position
+from vehicle.models import Car
+from routes.models import Route, Waypoint
+from geo.models import ZipCode, Position
 from django.forms import ModelForm
 
 

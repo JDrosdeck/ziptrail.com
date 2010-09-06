@@ -10,14 +10,14 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 
 #Database models
-from rideShare.myRides.models import Users, Trip, UsersTrip
-from rideShare.routes.models import Waypoint, Route, WaypointForm
-from rideShare.vehicle.models import Car
-from rideShare.geo.models import ZipCode, Position
+from myRides.models import Users, Trip, UsersTrip
+from routes.models import Waypoint, Route, WaypointForm
+from vehicle.models import Car
+from geo.models import ZipCode, Position
 
 #Forms
-from rideShare.common.forms import loginForm
-from rideShare.myRides.forms import tripForm, waypointForm, joinTripForm
+from common.forms import loginForm
+from myRides.forms import tripForm, waypointForm, joinTripForm
 
 import datetime
 
