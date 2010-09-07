@@ -78,6 +78,9 @@ def home_View(request):
                 endAddress = form.cleaned_data['endAddress']
                 endZip = form.cleaned_data['endZip']
                 leavingDate = form.cleaned_data['leavingDate']
+                public = form.cleaned_data['public']
+                customEndpoints = form.cleaned_data['customEndpoints']
+
                 #Car information
                 freeSeats = form.cleaned_data['freeSeats']
                 
@@ -89,11 +92,11 @@ def home_View(request):
                 startLatLong, createdStart = Position.objects.get_or_create(latitude=0.0, longitude=0.0)
                 endLatLong, createdEnd = Position.objects.get_or_create(latitude=0.0, longitude=0.0)
                 
-                route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=32, gallonsGas=32)
+                route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=32, gallonsGas=32,)
                 route.save()
                                                                    
                 #Create a new Trip, 
-                newRide = Trip(host=host, trip=route)
+                newRide = Trip(host=host, trip=route, public=public, customEndpoints=customEndpoints)
                 newRide.save()
                 return HttpResponseRedirect(settings.BASE_URL + '/rides/home')
 

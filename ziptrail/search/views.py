@@ -8,10 +8,10 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 
 
-from rideShare.search.forms import SearchForm
-from rideShare.geo.models import ZipCode
-from rideShare.routes.models import Route
-from rideShare.myRides.models import University, Trip, Users
+from search.forms import SearchForm
+from geo.models import ZipCode
+from routes.models import Route
+from myRides.models import University, Trip, Users
 from itertools import chain
 import math
 import operator

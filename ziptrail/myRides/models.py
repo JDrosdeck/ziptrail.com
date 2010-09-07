@@ -50,6 +50,7 @@ class Trip(models.Model):
     acceptedPassengers = models.ManyToManyField(UsersTrip, blank=True, null=True, related_name='accepted passengers')
     pendingPassengers = models.ManyToManyField(UsersTrip, blank=True, null=True, related_name='pending passengers')
     public = models.BooleanField(blank=False, null=False, default=False)
+    customEndpoints = models.BooleanField(blank=False, null=False, default=False)
     MaskEndpoint = models.BooleanField(blank=False, null=False, default=False)
     def __unicode__(self):
         return u'Host: %s, Start: %s, End: %s' % (self.host.user.username, self.trip.startAddress, self.trip.endAddress) 

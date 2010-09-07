@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('rideShare.geo.views',
+urlpatterns = patterns('geo.views',
                        (r'loadZip/$', 'loadZip'),
                        (r'loadSchool/$', 'loadSchool'),
 )
