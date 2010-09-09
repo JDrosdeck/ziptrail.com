@@ -52,6 +52,8 @@ class Trip(models.Model):
     public = models.BooleanField(blank=False, null=False, default=False)
     customEndpoints = models.BooleanField(blank=False, null=False, default=False)
     MaskEndpoint = models.BooleanField(blank=False, null=False, default=False)
+    active = models.BooleanField(blank=False, null=False, default=True)
+
     def __unicode__(self):
         return u'Host: %s, Start: %s, End: %s' % (self.host.user.username, self.trip.startAddress, self.trip.endAddress) 
 

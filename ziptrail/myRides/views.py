@@ -38,7 +38,7 @@ def home_View(request):
         acceptedRideIDs =[]
         waypointName = []
         ridersTripId = []
-        acceptedRides = Trip.objects.filter(acceptedPassengers__user__id__exact=rider.id)
+        acceptedRides = Trip.objects.filter(acceptedPassengers__user__id__exact=rider.id, active=True)
         for x in acceptedRides:
             #This will append the id of the ride to the acceotedRideIDs list
             acceptedRideIDs.append(x.id)
@@ -54,11 +54,11 @@ def home_View(request):
      
 
         #get all rides that their still pending on as a passenger
-        pendingRides = Trip.objects.filter(pendingPassengers__user__id__exact=rider.id)
+        pendingRides = Trip.objects.filter(pendingPassengers__user__id__exact=rider.id, active=True)
         
         #This gets all available rides exlcluding the user from being an acceptedPassenger, pendingPassenger or host
         # Basically any ride they have nothing to do with
-        allRides = Trip.objects.filter(host__university=rider.university).exclude(acceptedPassengers__user__id__exact=rider.id).exclude(pendingPassengers__user__id__exact=rider.id).exclude(host=rider)
+        allRides = Trip.objects.filter(host__university=rider.university, active=True).exclude(acceptedPassengers__user__id__exact=rider.id).exclude(pendingPassengers__user__id__exact=rider.id).exclude(host=rider)
 
         #All the rides that the user is hosting
         HostedRides = Trip.objects.filter(host=rider)
@@ -199,7 +199,7 @@ def askToJoinRide(request):
                     return HttpResponse('Your already a pending/accepted rider!')
 
                 else:
-                    trip = Trip.objects.get(id=tripId)
+                    trip = Trip.objects.get(id=tripId, active=True)
                     trip.pendingPassengers.add(ridersTrip)
                     trip.save()
                     return HttpResponse('You will be notified if you are accepted to the ride')
@@ -270,17 +270,10 @@ def cancelRide(request):
                 rider = Users.objects.get(user=user)
                 #Query for the trip
                 try:
-                    trip = Trip.objects.get(id=tripId)
-                    if trip.host == rider:
-                        for acceptedPassenger, pendingPassenger in map(None,trip.acceptedPassengers.all(), trip.pendingPassengers.all()):
-                            trip.acceptedPassengers.remove(acceptedPassenger)
-                            trip.pendingPassengers.remove(pendingPassenger)
-                        
-                        trip.delete()
-                        return HttpResponse("Ride canceled")
-                    else:
-                        return HttpResponse("you can't delete a ride you're not a host of..jerk")
-                            
+                    trip = Trip.objects.get(id=tripId, host=rider, active=True)
+                    trip.active = False
+                    trip.save()
+                    return HttpResponse("Ride canceled")
                 except:
                     return HttpResponse("error finding trip:Delete Ride")
                 
