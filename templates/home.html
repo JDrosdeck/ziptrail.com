@@ -71,7 +71,13 @@ Your School: {{ userInfo.university.name }}
 <input type="submit" value="Submit"/>
 </form>
 
-<div id="map_canvas" style="width:500px; height:300px"></div>
+{% if badges %}
+     {% for badge in badges %}
+
+          You've earned a new badge!! -> {{ badge }} <br>
+
+     {% endfor %}
+{% endif%}
 
 </body>
 </html>

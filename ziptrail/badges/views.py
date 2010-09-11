@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User
-from rideShare.myRides.models import Users, TripPassengers
+from myRides.models import Users, Trip
 
 # checkForBadges will run though and find if there are any new badges to assign
 # to a user
-def checkForBadges:
+def getBadges(request):
+
     # Name              #Description
     #---------------------------------------------------
     # 1st Timer         Hosts first ride
@@ -14,7 +15,39 @@ def checkForBadges:
     # 
 
 
+    badges = []
     user = User.objects.get(username=request.session['username'])
+    user = Users.objects.get(user=user)
+
+    #See how many rides the user has hosted
+    hostedRides = Trip.objects.filter(host=user, active=False).count()
+
+
+    badges.append('high flipper')
+    badges.append('ride KING!')
+
+    if hostedRides > 1:
+        badges.append('1st Timer')
+    if hostedRides > 5:
+        badges.append('Amateur Hour')
+    if hostedRides > 15:
+        badges.append('Taxi Driver')
+    if hostedRides > 25:
+        badges.append('Chauffeur')
+    if hostedRides > 50:
+        badges.append('Transporter')
+
+
+    #See how many Rides the user has been a passenger in
+    participatedRides = Trip.objects.filter(acceptedPassengers__user__id__exact=user.id, active=False).count()
     
-    #See how many rides the person has been on as a passenger
-    
+    if participatedRides > 1:
+        badges.append('Moocher')
+    if participatedRides > 5:
+        badges.append('Backseat Driver')
+    if participatedRides > 15:
+        badges.append('Ride Bum')
+    if participatedRides > 25:
+        badges.append('Wagon Train')
+
+    return badges

@@ -14,6 +14,7 @@ from myRides.models import Users, Trip, UsersTrip
 from routes.models import Waypoint, Route, WaypointForm
 from vehicle.models import Car
 from geo.models import ZipCode, Position
+from badges.views import getBadges
 
 #Forms
 from common.forms import loginForm
@@ -103,8 +104,10 @@ def home_View(request):
         user = User.objects.get(username=request.session['username'])
         user = Users.objects.get(user=user)
                
+        badges = getBadges(request)
+
         form = tripForm()
-        return direct_to_template(request, 'home.html', { 'rides' : acceptedRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides, 'userInfo': user, 'lst' : lst })
+        return direct_to_template(request, 'home.html', { 'rides' : acceptedRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides, 'userInfo': user, 'lst' : lst, 'badges' : badges })
     
     else:
         form = loginForm()
