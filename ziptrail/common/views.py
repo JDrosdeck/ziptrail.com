@@ -9,7 +9,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from common.forms import RegistrationForm, loginForm
-from myRides.models import Users, University, StudentEmail
+from myRides.models import Users, University
 from geo.models import ZipCode
 
 from django.contrib.sessions.models import Session
@@ -65,8 +65,8 @@ def isEmailDomainValid(request):
         email = request.GET.get('email', '')
         if email != '':
             try:
-                emailDomains = StudentEmail.objects.get(email__iexact=email)
-            
+                #emailDomains = StudentEmail.objects.get(email__iexact=email)
+                emailDomains = Univisity.objects.get(email__iexact=email)
                 return HttpResponse('True')
             except:
                 return HttpResponse('False')
@@ -74,8 +74,11 @@ def isEmailDomainValid(request):
 def register(request):
 
     if request.method == 'POST':
+        print 'here'
+        print request.POST
         form = RegistrationForm(request.POST)
         if form.is_valid():
+            print 'here'
             email = form.cleaned_data['email']
             passphrase = form.cleaned_data['passphrase']
                        
@@ -89,8 +92,8 @@ def register(request):
                 #Get the unvisity that has that email domain
                 #create the passenger (everyone gets defaulted to a passenger)
                 
-                emailDomains = StudentEmail.objects.get(email__iexact=emailDomain)    
-                university = University.objects.filter(email__id__exact=emailDomains.id)
+                #emailDomains = StudentEmail.objects.get(email__iexact=emailDomain)    
+                university = University.objects.filter(email__iexact=emailDomain)
                 
                 #TODO: If we get more then one university returned we then need 
                 # to have the user select which school that they belong to.
@@ -109,7 +112,6 @@ def register(request):
                 # create the user
                 user = User.objects.create_user(email,email,passphrase)
                 
-
                 newUser = Users(user=user, university = university[0])
                 newUser.save()
                 user.is_staff = False
@@ -119,8 +121,13 @@ def register(request):
                 request.session['username'] = email
                 return HttpResponseRedirect(settings.BASE_URL + '/rides/home/')
             else:
+
                 form = RegistrationForm()
                 return direct_to_template(request, 'register.html', { 'nameError' : True, 'form' : form })
+
+        else:
+            print 'form not valid'
+            print form.errors
 
     elif request.method == 'GET':
         email = request.GET.get('email', '')
@@ -133,8 +140,8 @@ def register(request):
         
         if email != '' and password != '':
             emailDomain = email[email.find('@'):]
-            emailDomains = StudentEmail.objects.get(email__iexact=emailDomain)
-            university = University.objects.filter(email__id__exact=emailDomains.id)
+            #emailDomains = StudentEmail.objects.get(email__iexact=emailDomain)
+            university = University.objects.filter(email__iexact=emailDomains)
             if university.count() < 1:
                 return HttpResponse('School not found')
             elif university.count() > 1:
