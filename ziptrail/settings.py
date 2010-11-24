@@ -46,12 +46,12 @@ USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '/public_html/rideshare.com/rideShare/rideShareTemplates/'
+MEDIA_ROOT = '/Users/jdrosdeck/Desktop/ziptrail.com/static-content/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = 'http://dev/'
+MEDIA_URL = '/media/'
 
 #URL used for internal channeling
 #BASE_URL = 'http://dev:8000'
@@ -86,7 +86,7 @@ ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
 
-    "/Users/jdrosdeck/Sites/ziptrail.com/templates/"
+    "/Users/jdrosdeck/Desktop/ziptrail.com/templates/"
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -98,7 +98,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
-   # 'django_extensions',
     'myRides',
     'routes',
     'myMessages',

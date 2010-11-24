@@ -22,10 +22,6 @@ def getBadges(request):
     #See how many rides the user has hosted
     hostedRides = Trip.objects.filter(host=user, active=False).count()
 
-
-    badges.append('high flipper')
-    badges.append('ride KING!')
-
     if hostedRides > 1:
         badges.append('1st Timer')
     if hostedRides > 5:

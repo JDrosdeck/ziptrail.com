@@ -66,7 +66,7 @@ def isEmailDomainValid(request):
         if email != '':
             try:
                 #emailDomains = StudentEmail.objects.get(email__iexact=email)
-                emailDomains = Univisity.objects.get(email__iexact=email)
+                emailDomains = University.objects.get(email__iexact=email)
                 return HttpResponse('True')
             except:
                 return HttpResponse('False')

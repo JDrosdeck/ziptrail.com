@@ -2,7 +2,7 @@ import csv
 import re
 from django.http import HttpResponse
 from geo.models import ZipCode, Position
-from myRides.models import University, StudentEmail
+from myRides.models import University
 
 def loadZip(request):
     reader = csv.reader(open("/Users/jdrosdeck/Desktop/zip_codes.csv", "rb"), delimiter=",", quoting=csv.QUOTE_ALL)
@@ -31,33 +31,23 @@ def loadSchool(request):
         zip = re.sub("\"", "", row[2])
         
     
-            #make sure the zipcode exists
+        #make sure the zipcode exists
         zcode = ZipCode.objects.get(zip=zip)
-            #Save the student email domain
-        tempemail1 = re.sub('\"', '', row[3])
+        #Save the student email domain
+        email = re.sub('\"', '', row[3])
         
-        #see if the email exists already
-        try:
-            email1 = StudentEmail.objects.get(email=tempemail1)
-            
-        except:
-            email1 = StudentEmail(email=tempemail1)
-            email1.save()
-
-            
-
-        email2 = None
-       
+        
         tempemail2 = row[4]
         if tempemail2.startswith('@'):
             tempemail2 = re.sub('\"', '' , row[4])
                 # see if the email aready exists
             try:
-                email2 = StudentEmail.objects.get(email=tempemail2)
+                pass
+                #email2 = StudentEmail.objects.get(email=tempemail2)
             except:
-                email2 = StudentEmail(email=tempemail2)
-                email2.save()
-            
+                #email2 = StudentEmail(email=tempemail2)
+                #email2.save()
+                pass
                 
             lat = re.sub('\"', '', row[5])
             lng = re.sub('\"', '', row[6])
@@ -68,14 +58,7 @@ def loadSchool(request):
 
         pos = Position(latitude=lat, longitude=lng)
         pos.save()
-        newUniversity= University(name=name, address=address, zip=zcode, latLng=pos)
-        newUniversity.save()
-        newUniversity.email.add(email1.id)
-        try:
-            newUniversity.email.add(email2.id)
-        except:
-            pass
-            
+        newUniversity= University(name=name, address=address, email=email, zip=zcode, latLng=pos)
         newUniversity.save()
     
     return HttpResponse("Load complete")
