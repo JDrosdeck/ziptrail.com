@@ -4,6 +4,7 @@ class RegistrationForm(forms.Form):
     email = forms.CharField(max_length=25, required=True) 
     passphrase = forms.CharField( max_length=15, required=True)
     passphraseCheck = forms.CharField(max_length=15, required=True)
+    schoolId = forms.CharField(max_length=5, required=True)
  
     
 class loginForm(forms.Form):

@@ -73,14 +73,12 @@ def isEmailDomainValid(request):
 def register(request):
 
     if request.method == 'POST':
-        print 'here'
-        print request.POST
+        
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            print 'here'
             email = form.cleaned_data['email']
             passphrase = form.cleaned_data['passphrase']
-                       
+            schoolId = form.cleaned_data['schoolId']
             #make sure the useremail dosen't exist
             dbUsers = User.objects.filter(username=email)
             if len(dbUsers) == 0:
@@ -92,7 +90,7 @@ def register(request):
                 #create the passenger (everyone gets defaulted to a passenger)
                 
                 #emailDomains = StudentEmail.objects.get(email__iexact=emailDomain)    
-                university = University.objects.filter(email__iexact=emailDomain)
+                university = University.objects.filter(id=schoolId)
                 
                 #TODO: If we get more then one university returned we then need 
                 # to have the user select which school that they belong to.
