@@ -6,33 +6,44 @@ $( document ).ready(function()
     var URLPATH = document.location.pathname;
 
 
-
+    /*
+    *   This will check the passphrase fields to make sure that both of the 
+    *   values that have been entered are the same. So long as they
+    *   are not it will show the textbox background as an error color
+    */
     $('[name=passphraseCheck]').bind('textchange', function() {
         if ($(this).val() != document.registrationForm.passphrase.value)
         {
-         $( this ).addClass( 'fielderror' );
+            $( this ).addClass( 'fielderror' );
         }
-        else{
+        else
+        {
             $( this ).removeClass( 'fielderror' );
         }
-        });
+    });
         
         
-
-
-
-
-
-    //Bind to the email field and check for valid input
-    //also fetch the schools that the user might belong to
+    
+    /*
+    *   This will bind to the email field, whenever the textbox changes it will check to make
+    *   sure that the input is proper for fetching a school. If it is it will fetch the appropraite
+    *   school in the background.
+    */
     $('[name=email]').bind('textchange', function() {
         var emailString = $(this).val().toString();
         //make sure we have at least five characters in the field. That one of the characters is the '@' symbol, and that the
         //position of the '@' symbol is less then that of the last found instance of .edu
         if ((emailString.length > 5) && (emailString.indexOf('@')!= -1) && (emailString.indexOf('@') < emailString.lastIndexOf('.edu')))
         {
+            //We only want to send the server the domain of the email
             emailString = emailString.substring(emailString.indexOf('@'), emailString.length);
+            //get the school
             ajaxUniversityEmail(emailString);
+        }
+        else
+        {
+            //make sure there isn't any text left in the div
+            $('#schoolResponse').text('');
         }
         });
     
@@ -49,16 +60,58 @@ $( document ).ready(function()
             success: function(data) {
                 //This should have a JSON string with all the schools
                 //that have that email address
-                
-                var jsonObject = JSON.parse(data, function(key, value){
-                
-                    if(key == 'school')
-                    {
-                        $('#schoolResponse').text(value);
-                    }
+                var idArray = []
+                var schoolNameArray = []
+                var id=''
+                var schoolName= ''
+    
+                if(data.length == 2)
+                {
+                    $('#schoolResponse').text('Hmm We don\'t seem to have your school on record');
+
                 }
-            );
-              //  alert(data)
+                else
+                {
+                    $('#schoolResponse').text('');
+                    var jsonObject = JSON.parse(data, function(key, value)
+                    {
+      
+                                
+                        if(key == 'school')
+                        {
+                            schoolName = value;
+                        }
+                        if (key == 'id')
+                        {
+                            id = value;
+                        }
+                
+                        if (id != '' && schoolName != '')
+                        {
+                    
+                            idArray.push(id);
+                            schoolNameArray.push(schoolName);
+                            var g ='<input type=\"radio\" name=\"schoolId\" value=\"' + id + '\">'+ schoolName + '<br>';                    
+                            id = '';
+                            schoolName = '';
+                        }
+            
+                    });
+
+            }            
+            if(idArray.length != 0 && idArray.length > 1)
+            {
+                
+                for(var i=0; i < idArray.length; i++)
+                {                
+                    $('#schoolResponse').append('<input type=\"radio\" name=\"schoolId\" value=\"' + idArray[i] + '\">'+ schoolNameArray[i] + '<br>');
+                }
+            }
+            else
+            {
+                $('#schoolResponse').append('<input type=\"hidden\" name=\"schoolId\" value=\"' + idArray[0] + '\">' + schoolNameArray[0]+ '<br>');
+            }
+                           
             }});
     };
 
