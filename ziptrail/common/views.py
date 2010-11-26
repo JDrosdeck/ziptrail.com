@@ -66,7 +66,7 @@ def isEmailDomainValid(request):
         if email != '':
 
             emailDomains = University.objects.filter(email__iexact=email)
-            Json = ([{'school' : x.name} for x in emailDomains])
+            Json = ([{'school' : x.name, 'id' : x.pk} for x in emailDomains])
             return HttpResponse(json.dumps(Json))
 
 
