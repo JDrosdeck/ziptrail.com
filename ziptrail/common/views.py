@@ -64,12 +64,11 @@ def isEmailDomainValid(request):
     if request.method == 'GET':
         email = request.GET.get('email', '')
         if email != '':
-            try:
-                #emailDomains = StudentEmail.objects.get(email__iexact=email)
-                emailDomains = University.objects.get(email__iexact=email)
-                return HttpResponse('True')
-            except:
-                return HttpResponse('False')
+
+            emailDomains = University.objects.filter(email__iexact=email)
+            Json = ([{'school' : x.name} for x in emailDomains])
+            return HttpResponse(json.dumps(Json))
+
 
 def register(request):
 

@@ -1,12 +1,24 @@
 <html>
-<head><title>Register for RideShare </title><head>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>Register for RideShare </title>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.textchange.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/zipScripts.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL}}css/style.css" />
+</head>
 <body>
   {% if nameError %}
   <p> That username is already  taken...two people with the same email? Sounds fishy </p>
   {% endif %}
-  <form action="/register/" method="post">
+  <form action="/register/" method="post" name="registrationForm">
     {% csrf_token %}
-    {{ form.as_p }}
+    Username:
+    <input type="text" name="email" class="textfield" spellcheck="false" id="email_field" rel="your email" maxlength="50" />
+    <div id="schoolResponse"></div>
+    Password:<input type="password" class="textfield" spellcheck="false" name="passphrase" id="password_field" rel="your passphrase" maxlength="15" />
+    Reenter Password:<input type="password" class="textfield" spellcheck="false" name="passphraseCheck" id="passphraseCheck_field" rel="Your passphrase again" maxlength="15" />
+
     <input type = "submit" value ="Submit" />
   </form>
 </body>

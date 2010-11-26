@@ -1,0 +1,10 @@
+.textfield.fielderror,.auth_digit.fielderror {
+background:#FBE3E4;
+}
+
+#schoolResponse {
+font-size:12px;
+height:17px;
+letter-spacing:1px;
+text-align:center;
+}

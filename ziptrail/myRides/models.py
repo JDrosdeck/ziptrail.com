@@ -5,12 +5,6 @@ from routes.models import Route, Waypoint
 from geo.models import ZipCode, Position
 from django.forms import ModelForm
 
-
-#class StudentEmail(models.Model):
-#    email = models.CharField(max_length=35)
-#    def __unicode__(self):
-#        return u'%s' % (self.email)
-
 class University(models.Model):
     name = models.CharField(max_length=150)
     address = models.CharField(max_length=200)
