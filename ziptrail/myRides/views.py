@@ -20,7 +20,9 @@ from badges.views import getBadges
 from common.forms import loginForm
 from myRides.forms import tripForm, waypointForm, joinTripForm
 
+from search.views import getDistance
 import datetime
+import ziptrailUtils
 
 # This is going to show a users home, and allow them to create a ride
 # or join a ride
@@ -89,17 +91,25 @@ def home_View(request):
                 host = Users.objects.get(user=host)
                 host.car = Car.objects.get(seats=int(freeSeats))
                 host.save()
-                            
-                startLatLong, createdStart = Position.objects.get_or_create(latitude=0.0, longitude=0.0)
-                endLatLong, createdEnd = Position.objects.get_or_create(latitude=0.0, longitude=0.0)
                 
-                route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=32, gallonsGas=32,)
-                route.save()
+                latStart, lngStart = ziptrailUtils.getGeocode(startAddress, startZip)
+                latEnd, lngEnd = ziptrailUtils.getGeocode(endAddress, endZip)
+                if latStart and lngStart and latEnd and lngEnd:
+                    startLatLong, createdStart = Position.objects.get_or_create(latitude=latStart, longitude=lngStart)
+                    endLatLong, createdEnd = Position.objects.get_or_create(latitude=latEnd, longitude=lngEnd)
+
+                    #calculate the total miles
+                    dist = getDistance(lngStart,lngEnd, latStart, latEnd)
+                    print "DISTANCE " + str(dist)
+                    route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=32, gallonsGas=32,)
+                    route.save()
                                                                    
-                #Create a new Trip, 
-                newRide = Trip(host=host, trip=route, public=public, customEndpoints=customEndpoints)
-                newRide.save()
-                return HttpResponseRedirect(settings.BASE_URL + '/rides/home')
+                    #Create a new Trip, 
+                    newRide = Trip(host=host, trip=route, public=public, customEndpoints=customEndpoints)
+                    newRide.save()
+                    return HttpResponseRedirect(settings.BASE_URL + '/rides/home')
+                else:
+                    return HttpResponse('Couldn\'t geocode')
 
         user = User.objects.get(username=request.session['username'])
         user = Users.objects.get(user=user)
@@ -150,6 +160,8 @@ def CreateNewWaypoint(request):
                 address = form.cleaned_data['address']
                 lat = 0.0
                 lng= 0.345
+
+                
 
                 pos, created = Position.objects.get_or_create(latitude=lat, longitude=lng)
                 waypoint, created = Waypoint.objects.get_or_create(title=str(title), waypoint=str(address), lat_long=pos)

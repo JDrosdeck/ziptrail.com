@@ -97,14 +97,6 @@ def runSearch(startAddress,startLat, startLong, endAddress, endLat, endLong, dis
 
 
 
-
-
-
-
-
-
-
-
 # calcDistances returns a list of the matching indicies of the given matchedRides.
 # this way we are able to continue using the query object easily instead of 
 # putting it back into a list
@@ -121,6 +113,10 @@ def calcDistances(matchedRides,lat, long,  distance):
 
 def getDistance(long1, long2, lat1, lat2):
 
+    long1 = math.radians(long1)
+    long2 = math.radians(long2)
+    lat1 = math.radians(lat1)
+    lat2 = math.radians(lat2)
     diff_long = long2 - long1
     diff_lat = lat2 - lat1
 
