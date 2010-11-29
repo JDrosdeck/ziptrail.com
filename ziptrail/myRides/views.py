@@ -99,7 +99,7 @@ def home_View(request):
                     endLatLong, createdEnd = Position.objects.get_or_create(latitude=latEnd, longitude=lngEnd)
 
                     #calculate the total miles
-                    dist = getDistance(lngStart,lngEnd, latStart, latEnd)
+                    dist = getDistance(latStart,lngStart, latEnd, lngEnd)
                     print "DISTANCE " + str(dist)
                     gas = dist/16
                     route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=dist, gallonsGas=gas)
@@ -304,8 +304,6 @@ def viewRide(request, tripId):
     # We want to show detailed information about the trip
     # ie. google map. Waypoints, people involved
     
-
-
     matchedTrip = Trip.objects.get(id=tripId)
 
     #Check to see if the person requesting this ridde should even be able to see the ride
@@ -316,8 +314,8 @@ def viewRide(request, tripId):
     
         #get the users waypointdata
         username = request.session['username']
-        form = joinTripForm(initial={'tripId': tripId }, username=username)
-
+        form = joinTripForm(initial={'tripId': tripId }, username=user.username)
+        print form
         return direct_to_template(request, 'view.html', { 'trip' : matchedTrip, 'form' : form })
     else:
         return HttpResponse('Sorry thats a private ride')
