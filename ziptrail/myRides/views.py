@@ -8,6 +8,8 @@ from django.conf import settings
 from django.utils import simplejson as json
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 #Database models
 from myRides.models import Users, Trip, UsersTrip
@@ -57,14 +59,17 @@ def home_View(request):
      
 
         #get all rides that their still pending on as a passenger
-        pendingRides = Trip.objects.filter(pendingPassengers__user__id__exact=rider.id, active=True)
+        pendingRides = Trip.objects.filter(pendingPassengers__user__id__exact=rider.id, 
+                                           active=True)
         
         #This gets all available rides exlcluding the user from being an acceptedPassenger, pendingPassenger or host
         # Basically any ride they have nothing to do with
-        allRides = Trip.objects.filter(host__university=rider.university, active=True).exclude(acceptedPassengers__user__id__exact=rider.id).exclude(pendingPassengers__user__id__exact=rider.id).exclude(host=rider)
+        allRides = Trip.objects.filter(host__university=rider.university, 
+                                       active=True).exclude(acceptedPassengers__user__id__exact=rider.id).exclude(pendingPassengers__user__id__exact=rider.id).exclude(host=rider)
 
         #All the rides that the user is hosting
-        HostedRides = Trip.objects.filter(host=rider)
+        HostedRides = Trip.objects.filter(host=rider, 
+                                          active=True)
         
         #Check to see if they've added a new ride.
         #The ride information is all going to be created client side
@@ -95,18 +100,33 @@ def home_View(request):
                 latStart, lngStart = ziptrailUtils.getGeocode(startAddress, startZip)
                 latEnd, lngEnd = ziptrailUtils.getGeocode(endAddress, endZip)
                 if latStart and lngStart and latEnd and lngEnd:
-                    startLatLong, createdStart = Position.objects.get_or_create(latitude=latStart, longitude=lngStart)
-                    endLatLong, createdEnd = Position.objects.get_or_create(latitude=latEnd, longitude=lngEnd)
+                    startLatLong, createdStart = Position.objects.get_or_create(latitude=latStart, 
+                                                                                longitude=lngStart)
+                    endLatLong, createdEnd = Position.objects.get_or_create(latitude=latEnd, 
+                                                                            longitude=lngEnd)
 
                     #calculate the total miles
-                    dist = getDistance(latStart,lngStart, latEnd, lngEnd)
-                    print "DISTANCE " + str(dist)
+                    dist = getDistance(latStart,
+                                       lngStart, 
+                                       latEnd, 
+                                       lngEnd)
+                    
                     gas = dist/16
-                    route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=dist, gallonsGas=gas)
+                    route = Route(startAddress=startAddress, 
+                                  startZip=ZipCode.objects.get(zip=startZip), 
+                                  startLat_Long=startLatLong, 
+                                  endAddress=endAddress, 
+                                  endZip=ZipCode.objects.get(zip=endZip), 
+                                  endLat_Long=endLatLong, 
+                                  totalMiles=dist, 
+                                  gallonsGas=gas)
                     route.save()
                                                                    
                     #Create a new Trip, 
-                    newRide = Trip(host=host, trip=route, public=public, customEndpoints=customEndpoints)
+                    newRide = Trip(host=host, 
+                                   trip=route, 
+                                   public=public, 
+                                   customEndpoints=customEndpoints)
                     newRide.save()
                     return HttpResponseRedirect(settings.BASE_URL + '/rides/home')
                 else:
@@ -118,11 +138,23 @@ def home_View(request):
         badges = getBadges(request)
 
         form = tripForm()
-        return direct_to_template(request, 'home.html', { 'rides' : acceptedRides, 'form' : form, 'availableRides' : allRides, 'hostedRides' : HostedRides, 'userInfo': user, 'lst' : lst, 'badges' : badges })
+        return direct_to_template(request, 
+                                  'home.html', 
+                                  { 'rides' : acceptedRides, 
+                                    'form' : form, 
+                                    'availableRides' : allRides, 
+                                    'hostedRides' : HostedRides, 
+                                    'userInfo': user, 
+                                    'lst' : lst, 
+                                    'badges' : badges 
+                                    })
     
     else:
         form = loginForm()
-        return direct_to_template(request, 'login.html', { 'form' : form })
+        return direct_to_template(request, 
+                                  'login.html', 
+                                  { 'form' : form 
+                                    })
 
 
 #This function allows for a user to create a new waypoint
@@ -137,10 +169,13 @@ def CreateNewWaypoint(request):
             if title and address and lat and lng:
 
                 #Save the lat and lng
-                pos, created  = Position.objects.get_or_create(latitude=float(lat),longitude=float(lng))
+                pos, created  = Position.objects.get_or_create(latitude=float(lat),
+                                                               longitude=float(lng))
                     
                 #Create the waypoint
-                waypoint, created  = Waypoint.objects.get_or_create(title=title, waypoint=address, lat_long=pos)
+                waypoint, created  = Waypoint.objects.get_or_create(title=title, 
+                                                                    waypoint=address, 
+                                                                    lat_long=pos)
                 
                 #Add the waypoint to the list of users waypoints
                 user = User.objects.get(username=request.session['username'])
@@ -149,7 +184,10 @@ def CreateNewWaypoint(request):
                 return HttpResponse('waypoint added')
                 
             form = waypointForm()
-            return direct_to_template(request, 'newWaypoint.html', { 'form' : form })
+            return direct_to_template(request, 
+                                      'newWaypoint.html', 
+                                      { 'form' : form 
+                                        })
 
         return HttpResponse('not authenticated')
     
@@ -162,10 +200,11 @@ def CreateNewWaypoint(request):
                 lat = 0.0
                 lng= 0.345
 
-                
-
-                pos, created = Position.objects.get_or_create(latitude=lat, longitude=lng)
-                waypoint, created = Waypoint.objects.get_or_create(title=str(title), waypoint=str(address), lat_long=pos)
+                pos, created = Position.objects.get_or_create(latitude=lat, 
+                                                              longitude=lng)
+                waypoint, created = Waypoint.objects.get_or_create(title=str(title), 
+                                                                   waypoint=str(address), 
+                                                                   lat_long=pos)
                     
                 user = User.objects.get(username=request.session['username'])
                 user = Users.objects.get(user=user)
@@ -174,7 +213,10 @@ def CreateNewWaypoint(request):
     else:
         form = waypointForm()
         
-    return direct_to_template(request, 'newWaypoint.html', { 'form' : form })
+    return direct_to_template(request, 
+                              'newWaypoint.html', 
+                              { 'form' : form 
+                                })
 
     
 def jsonifyResults(QuerySet):
@@ -192,7 +234,8 @@ def askToJoinRide(request):
 
     if request.method == 'POST':
         if request.user.is_authenticated:
-            form = joinTripForm(request.POST, username=request.session['username'])
+            form = joinTripForm(request.POST, 
+                                username=request.session['username'])
             if form.is_valid():
                 tripId = form.cleaned_data['tripId']
                 waypointId = form.cleaned_data['option']
@@ -200,14 +243,18 @@ def askToJoinRide(request):
                 user = request.session['username']
                 users = Users.objects.get(user__username=user)
                 
-                ridersTrip, created = UsersTrip.objects.get_or_create(user=users, waypoint=waypointId)
+                ridersTrip, created = UsersTrip.objects.get_or_create(user=users, 
+                                                                      waypoint=waypointId)
               
                 # There were already some pending passengers, so here we make sure
                 # that none of the pending passengers are the user trying to double
                 # up their request                    
                 
                 #If this sql dosen't return a 0 we know the user is already in the trip
-                isUserInTrip = (Q(id=tripId,pendingPassengers__waypoint__id__exact=ridersTrip.waypoint.id, pendingPassengers__user__id__exact=ridersTrip.user.id) | Q(id=tripId,acceptedPassengers__waypoint__id__exact=ridersTrip.waypoint.id, acceptedPassengers__user__id__exact=ridersTrip.user.id))
+                isUserInTrip = (Q(id=tripId,pendingPassengers__waypoint__id__exact=ridersTrip.waypoint.id, 
+                                  pendingPassengers__user__id__exact=ridersTrip.user.id) | 
+                                Q(id=tripId,acceptedPassengers__waypoint__id__exact=ridersTrip.waypoint.id, 
+                                  acceptedPassengers__user__id__exact=ridersTrip.user.id))
                     
                 inTrip = Trip.objects.filter(isUserInTrip).count()
                    
@@ -215,7 +262,8 @@ def askToJoinRide(request):
                     return HttpResponse('Your already a pending/accepted rider!')
 
                 else:
-                    trip = Trip.objects.get(id=tripId, active=True)
+                    trip = Trip.objects.get(id=tripId, 
+                                            active=True)
                     trip.pendingPassengers.add(ridersTrip)
                     trip.save()
                     return HttpResponse('You will be notified if you are accepted to the ride')
@@ -274,6 +322,7 @@ def removeRiderFromRide(request):
         return HttpResponse('not authenticated')
     return HttpResponse('wrong request type')
 
+
 def cancelRide(request):
     if request.method == 'GET':
         if request.user.is_authenticated:
@@ -286,14 +335,21 @@ def cancelRide(request):
                 rider = Users.objects.get(user=user)
                 #Query for the trip
                 try:
-                    trip = Trip.objects.get(id=tripId, host=rider, active=True)
+                    trip = Trip.objects.get(id=tripId, 
+                                            host=rider, 
+                                            active=True)
+                except MultipleObjectsReturned:
+                    return HttpResponse('Hmm thats a strange error')
+                
+                except ObjectDoesNotExist:
+                    return HttpResponse('You don\'t control this ride')
+                else:
                     trip.active = False
                     trip.save()
                     return HttpResponse("Ride canceled")
-                except:
-                    return HttpResponse("error finding trip:Delete Ride")
                 
-                
+        else:
+            return HttpResponseRedirect(reverse('login'))
 
 
 #viewRide is where a rider is going to view the details of a ride. See all the information
@@ -314,8 +370,13 @@ def viewRide(request, tripId):
     
         #get the users waypointdata
         username = request.session['username']
-        form = joinTripForm(initial={'tripId': tripId }, username=user.username)
+        form = joinTripForm(initial={'tripId': tripId }, 
+                            username=user.username)
         print form
-        return direct_to_template(request, 'view.html', { 'trip' : matchedTrip, 'form' : form })
+        return direct_to_template(request, 
+                                  'view.html', 
+                                  { 'trip' : matchedTrip, 
+                                    'form' : form 
+                                    })
     else:
         return HttpResponse('Sorry thats a private ride')
