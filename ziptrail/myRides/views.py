@@ -303,11 +303,20 @@ def viewRide(request, tripId):
     # We want to show detailed information about the trip
     # ie. google map. Waypoints, people involved
     
-    matchedTrip = Trip.objects.get(id=tripId)
-    
-    #get the users waypointdata
-    username = request.session['username']
-    form = joinTripForm(initial={'tripId': tripId }, username=username)
-    
 
-    return direct_to_template(request, 'view.html', { 'trip' : matchedTrip, 'form' : form })
+
+    matchedTrip = Trip.objects.get(id=tripId)
+
+    #Check to see if the person requesting this ridde should even be able to see the ride
+    user = User.objects.get(username=request.session['username'])
+    rider = Users.objects.get(user=user)
+    
+    if (matchedTrip.host.university == rider.university) or (matchedTrip.public == True):
+    
+        #get the users waypointdata
+        username = request.session['username']
+        form = joinTripForm(initial={'tripId': tripId }, username=username)
+
+        return direct_to_template(request, 'view.html', { 'trip' : matchedTrip, 'form' : form })
+    else:
+        return HttpResponse('Sorry thats a private ride')

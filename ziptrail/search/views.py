@@ -91,11 +91,7 @@ def runSearch(startAddress,startLat, startLong, endAddress, endLat, endLong, dis
                  if ride not in results:
                     #Do a psuedo average time to see if it won't make the trip much longer
                      pass
-
-
     return results
-
-
 
 # calcDistances returns a list of the matching indicies of the given matchedRides.
 # this way we are able to continue using the query object easily instead of 
@@ -108,19 +104,17 @@ def calcDistances(matchedRides,lat, long,  distance):
             matches.append(ride.id)
     return matches
 
+def getDistance(latStart, lngStart, latEnd, lngEnd):
 
+    lngStart = math.radians(lngStart)
+    lngEnd = math.radians(lngEnd)
+    latStart = math.radians(latStart)
+    latEnd = math.radians(latEnd)
 
+    diff_long = lngEnd - lngStart
+    diff_lat = latEnd - latStart
 
-def getDistance(long1, long2, lat1, lat2):
-
-    long1 = math.radians(long1)
-    long2 = math.radians(long2)
-    lat1 = math.radians(lat1)
-    lat2 = math.radians(lat2)
-    diff_long = long2 - long1
-    diff_lat = lat2 - lat1
-
-    a = (math.sin(diff_lat / 2))**2 + math.cos(lat1) * math.cos(lat2) * (math.sin(diff_long / 2)) ** 2
+    a = (math.sin(diff_lat / 2))**2 + math.cos(latStart) * math.cos(latEnd) * (math.sin(diff_long / 2)) ** 2
     
     c = 2 * math.asin(min(1, math.sqrt(a)))
     dist = 3956 * c

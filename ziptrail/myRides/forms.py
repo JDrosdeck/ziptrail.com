@@ -15,7 +15,7 @@ class joinTripForm(forms.Form):
           username = kwargs['username']
           del kwargs['username']
           super(joinTripForm, self).__init__(*args, **kwargs)
-          self.fields["option"].queryset =  Users.objects.get(user = User.objects.get(username=username)).waypoints.all()
+          self.fields["option"].queryset = Users.objects.get(user = User.objects.get(username=username)).waypoints.all()
           
 
 class waypointForm(forms.Form):
