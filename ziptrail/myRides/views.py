@@ -101,7 +101,8 @@ def home_View(request):
                     #calculate the total miles
                     dist = getDistance(lngStart,lngEnd, latStart, latEnd)
                     print "DISTANCE " + str(dist)
-                    route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=32, gallonsGas=32)
+                    gas = dist/16
+                    route = Route(startAddress=startAddress, startZip=ZipCode.objects.get(zip=startZip), startLat_Long=startLatLong, endAddress=endAddress, endZip=ZipCode.objects.get(zip=endZip), endLat_Long=endLatLong, totalMiles=dist, gallonsGas=gas)
                     route.save()
                                                                    
                     #Create a new Trip, 
