@@ -2,6 +2,7 @@ from urllib2 import Request, urlopen, URLError
 import simplejson as json
 import random
 import re
+
 def getGeocode(Address, Zip):
     
     rand = random.randrange(0,2)
