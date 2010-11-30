@@ -26,6 +26,7 @@ from search.views import getDistance
 import datetime
 import ziptrailUtils
 from home_view import home_view
+from create_waypoint_view import create_waypoint_view
 
 # This is going to show a users home, and allow them to create a ride
 # or join a ride
@@ -35,74 +36,7 @@ def home_View(request):
 
 #This function allows for a user to create a new waypoint
 def CreateNewWaypoint(request):
-    if request.method == 'GET':
-        if request.user.is_authenticated:
-            title = request.GET.get('title', '')
-            address = request.GET.get('add','')
-            lat = request.GET.get('lat','')
-            lng = request.GET.get('lng','')
-            
-            if title and address and lat and lng:
-
-                #Save the lat and lng
-                pos, created  = Position.objects.get_or_create(latitude=float(lat),
-                                                               longitude=float(lng))
-                    
-                #Create the waypoint
-                waypoint, created  = Waypoint.objects.get_or_create(title=title, 
-                                                                    waypoint=address, 
-                                                                    lat_long=pos)
-                
-                #Add the waypoint to the list of users waypoints
-                user = User.objects.get(username=request.session['username'])
-                user = Users.objects.get(user=user)
-                user.waypoints.add(waypoint)
-                return HttpResponse('waypoint added')
-                
-            form = waypointForm()
-            return direct_to_template(request, 
-                                      'newWaypoint.html', 
-                                      { 'form' : form 
-                                        })
-
-        return HttpResponse('not authenticated')
-    
-    elif request.method == 'POST':
-        if request.user.is_authenticated:
-            form = waypointForm(request.POST)
-            if form.is_valid():
-                title = form.cleaned_data['title']
-                address = form.cleaned_data['address']
-                lat = 0.0
-                lng= 0.345
-
-                pos, created = Position.objects.get_or_create(latitude=lat, 
-                                                              longitude=lng)
-                waypoint, created = Waypoint.objects.get_or_create(title=str(title), 
-                                                                   waypoint=str(address), 
-                                                                   lat_long=pos)
-                    
-                user = User.objects.get(username=request.session['username'])
-                user = Users.objects.get(user=user)
-                user.waypoints.add(waypoint)
-                return HttpResponse('waypoint added')
-    else:
-        form = waypointForm()
-        
-    return direct_to_template(request, 
-                              'newWaypoint.html', 
-                              { 'form' : form 
-                                })
-
-    
-def jsonifyResults(QuerySet):
-    result = dict()
-    tempResult = []
-    for query in QuerySet:
-        tempResult.append(query)
-        result['results'] = tempResult
-    return json.dumps(result)
-
+    return create_waypoint_view(request)
 
 #this function is for when a user wants to join a ride. They first need to ask permission from the host
 # if they are allowed to join
