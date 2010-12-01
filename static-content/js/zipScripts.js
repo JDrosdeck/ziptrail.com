@@ -4,7 +4,55 @@ $( document ).ready(function()
     var HOSTNAME = 'http://' + document.location.host;
     console.debug(HOSTNAME);
     var URLPATH = document.location.pathname;
+	var createHidden, findHidden, manageHidden=false;
+	$('[name=map]').hide()
+	$('[name=Create]').click(function() {
+		if (createHidden){
+			$('[name=Find]').show('slow');
+			$('[name=Manage]').show('slow');
+			$('[name=map]').hide()
+			$('[name=Create]').html('<h1><p>Create Ride:<p><h1>')
+			
+			createHidden=false;				
+		}
+		else{
+			
+			$('[name=Find]').hide('slow');
+			$('[name=Manage]').hide('slow');
+			$('[name=map]').show()
+			initialize();
+			$('[name=Create]').html('<h1><p>From:<p></h1>')
+			createHidden = true;
+		}
+	});
 
+	$('[name=Find]').click(function() {
+		if(findHidden){
+			$('[name=Manage]').show('slow');
+			$('[name=Create]').show('slow');
+			findHidden=false;
+		}
+		else {
+			$('[name=Manage]').hide('slow');
+			$('[name=Create]').hide('slow');
+			findHidden = true;			
+		}
+	});
+
+	$('[name=Manage]').click(function() {
+		if(manageHidden){
+			$('[name=Find]').show('slow');
+			$('[name=Create]').show('slow');
+			manageHidden = false;
+		}
+		else {
+			$('[name=Find]').hide('slow');
+			$('[name=Create]').hide('slow');
+			manageHidden = true;
+		}
+
+	});
+	
     /*
     *   This will check the passphrase fields to make sure that both of the 
     *   values that have been entered are the same. So long as they
@@ -21,8 +69,6 @@ $( document ).ready(function()
         }
     });
         
-        
-    
     /*
     *   This will bind to the email field, whenever the textbox changes it will check to make
     *   sure that the input is proper for fetching a school. If it is it will fetch the appropraite
@@ -147,7 +193,15 @@ $( document ).ready(function()
         var pattern = new RegExp(/^([\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+\.)*[\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+@((((([a-z0-9]{1}[a-z0-9\-]{0,62}[a-z0-9]{1})|[a-z])\.)+[a-z]{2,6})|(\d{1,3}\.){3}\d{1,3}(\:\d{1,5})?)$/i);
             return pattern.test( address );
         }
-
+	function initialize() {
+		var latlng = new google.maps.LatLng(-34.397, 150.644);
+		var myOptions = {
+		   zoom: 6,
+		   center: latlng,
+		   mapTypeId: google.maps.MapTypeId.ROADMAP
+		 };
+		var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+		  }
 
 
 });

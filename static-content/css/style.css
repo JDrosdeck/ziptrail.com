@@ -4,9 +4,22 @@ background:#FBE3E4;
 #header,#Username,#Password, #Password_check { text-align: center;} 
 
 
-h1 { font-size:120px;font-family:  arial, serif; }
+h1 { 
+	font-family: 'helvetica neue', helvetica, arial, sans-serif;
+	font-size: 12em;
+	letter-spacing: -3px;
+	font-weight: bold;
+	}
 
 h3 { font-size:15px;font-family: arial, serif; }
+#hover p:hover { background: #F0F0F0; cursor: pointer;}
+#map_canvas { height: 75% }
+
+#hover {
+height:175px;
+letter-spacing:1px;
+}
+
 
 .textfield
 {

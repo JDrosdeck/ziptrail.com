@@ -4,84 +4,31 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 
 <title>Your rideShare homepage </title>
+<link rel="stylesheet" href="{{ MEDIA_URL }}css/blueprint/screen.css" type="text/css" media="screen, projection" \>
+<link rel="stylesheet" href="{{ MEDIA_URL }}css/blueprint/print.css" type="text/css" media="print" \>
+<!--[if lt IE 8]>
+<link rel="stylesheet" href="{{ MEDIA_URL }}css/blueprint/ie.css" type="text/css" media="screen, projection" \>
+<![endif]-->
 <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.4.4.min.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.textchange.min.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}js/zipScripts.js"></script>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL}}css/style.css" />
 </head>
 <body>
-
-
-
-Your School: {{ userInfo.university.name }}
-
-<h1>Rides coming up..</h1>
-{% if rides %}
-
-     {% for x in lst %}
-       
-       Heading To:   {{ x.waypointName }} <a href="/rides/removeRider/?tripId={{x.acceptedRides}}&ridersTripId={{x.id}}"> Remove </a><br>
-
-     {% endfor %}
-
-{% else %}
-
-     You don't have any rides
-
-{% endif %}
-
-<br><br><br><br>
-<h1>Available Rides </h1>
-{% if availableRides %}
-
-     {% for ride in availableRides %}
-
-        Ride To : {{ ride.trip }} <a href="/rides/view/{{ride.id}}/"> View </a> <br>
-
-     {% endfor %}
-
-
-{% else %}
-
-     There aren't any rides available
-
-{% endif %}
-
-<h1> Rides I'm Hosting </h1>
-{% if hostedRides %}
-
-     {% for ride in hostedRides %}
-       
-         <b> Riding to: {{ ride.trip}}</b> <a href="/rides/cancelRide/?tripId={{ride.id}}"> cancel </a>     <br> 
-       {% for acceptedPassenger in ride.acceptedPassengers.all %}
-              <br> remove: <a href="/rides/removeRider/?tripId={{ride.id}}&ridersTripId={{acceptedPassenger.id}}">{{acceptedPassenger.user.user.username}} Waypoint: {{acceptedPassenger.waypoint.waypoint}}</a>
-             {% endfor %}
-
-
-             {% for pendingPassenger in ride.pendingPassengers.all %}
-             <br> add: <a href="/rides/addRider/?tripId={{ride.id}}&ridersTripId={{pendingPassenger.id}}"> {{pendingPassenger.user.user.username}} Waypoint--->: {{pendingPassenger.waypoint.waypoint}}</a>
-             {% endfor %}
-     <br>
-     {% endfor %}
-{% else %}
-
-     You're not hosting any rides 
-{% endif %}
-<h1>Create a Trip</h1>
-
-<form action="/rides/home/" method="post">
-{% csrf_token %}
-{{ form.as_p }}
-<input type="submit" value="Submit" name="new_trip"/>
-</form>
-
-{% if badges %}
-     {% for badge in badges %}
-
-          You've earned a new badge!! -> {{ badge }} <br>
-
-     {% endfor %}
-{% endif%}
-
+		<div class="container">
+			<div name="Create" id="hover" class="span-24">
+				<h1><p>Create Ride<p><h1>
+			</div>
+			<div name="Find" id="hover" class="span-24">
+				<h1><p>Find A Ride<p></h1>
+			</div>
+			<div name="Manage" id="hover" class="span-24">
+				<h1><p>Manage<p></h1>
+			</div>
+			<div id="map_canvas" style="width:100%; height:75%" name="map" class="span-24"></div>
+			
+		</div>
+	  
 </body>
 </html>
