@@ -5,7 +5,6 @@ $( document ).ready(function()
     console.debug(HOSTNAME);
     var URLPATH = document.location.pathname;
 
-
     /*
     *   This will check the passphrase fields to make sure that both of the 
     *   values that have been entered are the same. So long as they

@@ -1,6 +1,21 @@
 .textfield.fielderror,.auth_digit.fielderror {
 background:#FBE3E4;
 }
+#header,#Username,#Password, #Password_check { text-align: center;} 
+
+
+h1 { font-size:120px;font-family:  arial, serif; }
+
+h3 { font-size:15px;font-family: arial, serif; }
+
+.textfield
+{
+font-family:  arial, serif;
+font-size: 20px;
+font-style:normal;
+height:25px;
+width:200px;
+}
 
 #schoolResponse {
 font-size:12px;

@@ -4,6 +4,10 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 
 <title>Your rideShare homepage </title>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.textchange.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/zipScripts.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL}}css/style.css" />
 </head>
 <body>
 
@@ -48,7 +52,7 @@ Your School: {{ userInfo.university.name }}
 
      {% for ride in hostedRides %}
        
-         <b> Riding to: {{ ride.trip}}</b> <br> 
+         <b> Riding to: {{ ride.trip}}</b> <a href="/rides/cancelRide/?tripId={{ride.id}}"> cancel </a>     <br> 
        {% for acceptedPassenger in ride.acceptedPassengers.all %}
               <br> remove: <a href="/rides/removeRider/?tripId={{ride.id}}&ridersTripId={{acceptedPassenger.id}}">{{acceptedPassenger.user.user.username}} Waypoint: {{acceptedPassenger.waypoint.waypoint}}</a>
              {% endfor %}
@@ -68,7 +72,7 @@ Your School: {{ userInfo.university.name }}
 <form action="/rides/home/" method="post">
 {% csrf_token %}
 {{ form.as_p }}
-<input type="submit" value="Submit"/>
+<input type="submit" value="Submit" name="new_trip"/>
 </form>
 
 {% if badges %}
