@@ -2,11 +2,12 @@ $( document ).ready(function()
 {
     // Global
     var HOSTNAME = 'http://' + document.location.host;
-    console.debug(HOSTNAME);
     var URLPATH = document.location.pathname;
 	var createHidden, findHidden, manageHidden=false;
 	$('[name=map]').hide();
 	$('[name=ride_from]').hide();
+	$('[name=manage_user_account]').hide();
+	$('[name=manage_preferences]').hide();
 	
 	$('[name=Create]').click(function() {
 		if (createHidden){
@@ -46,11 +47,18 @@ $( document ).ready(function()
 		if(manageHidden){
 			$('[name=Find]').show('slow');
 			$('[name=Create]').show('slow');
+			$('[name=manage_user_account]').hide();
+			$('[name=manage_preferences]').hide();
+			
+			
 			manageHidden = false;
 		}
 		else {
 			$('[name=Find]').hide('slow');
 			$('[name=Create]').hide('slow');
+			$('[name=manage_user_account]').show();
+			$('[name=manage_preferences]').show();
+			
 			manageHidden = true;
 		}
 

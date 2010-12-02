@@ -11,7 +11,13 @@ background:#FBE3E4;
     float: left;
 }
 
-#myinnercontainer { position:absolute; top:50%; height:10em; margin-top:-5em }
+#manage_user_account {
+	font-family: 'helvetica neue', helvetica, arial, sans-serif;
+	font-size: 9em;
+	letter-spacing: -3px;
+	font-weight: bold;
+	color:#586949;
+}
 
 h1 { 
 	font-family: 'helvetica neue', helvetica, arial, sans-serif;
@@ -27,9 +33,9 @@ h2 {
 	font-weight: bold;
 	 }
 
-
 #hover p:hover { background: #F0F0F0; cursor: pointer;}
-#map_canvas { height: 75% }
+#map_canvas { height: 75%;
+			  margin-top:-2.5em;}
 
 #hover, #ride_form {
 height:175px;
