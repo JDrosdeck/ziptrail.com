@@ -5,23 +5,26 @@ $( document ).ready(function()
     console.debug(HOSTNAME);
     var URLPATH = document.location.pathname;
 	var createHidden, findHidden, manageHidden=false;
-	$('[name=map]').hide()
+	$('[name=map]').hide();
+	$('[name=ride_from]').hide();
+	
 	$('[name=Create]').click(function() {
 		if (createHidden){
 			$('[name=Find]').show('slow');
 			$('[name=Manage]').show('slow');
-			$('[name=map]').hide()
-			$('[name=Create]').html('<h1><p>Create Ride:<p><h1>')
-			
+			$('[name=Create]').show('<h1><p>Create Ride:<p><h1>');
+			$('[name=map]').hide();
+			$('[name=ride_from]').hide();
 			createHidden=false;				
 		}
 		else{
 			
-			$('[name=Find]').hide('slow');
-			$('[name=Manage]').hide('slow');
-			$('[name=map]').show()
+			$('[name=Find]').hide();
+			$('[name=Manage]').hide();
+			$('[name=Create]').hide();
+			$('[name=map]').show();
+			$('[name=ride_from]').show();
 			initialize();
-			$('[name=Create]').html('<h1><p>From:<p></h1>')
 			createHidden = true;
 		}
 	});

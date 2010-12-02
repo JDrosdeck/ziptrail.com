@@ -3,6 +3,15 @@ background:#FBE3E4;
 }
 #header,#Username,#Password, #Password_check { text-align: center;} 
 
+.container {
+    position: relative;
+}
+
+.align-right {
+    float: left;
+}
+
+#myinnercontainer { position:absolute; top:50%; height:10em; margin-top:-5em }
 
 h1 { 
 	font-family: 'helvetica neue', helvetica, arial, sans-serif;
@@ -11,23 +20,34 @@ h1 {
 	font-weight: bold;
 	}
 
-h3 { font-size:15px;font-family: arial, serif; }
+h2 {
+	font-family: 'helvetica neue', helvetica, arial, sans-serif;
+	font-size: 9em;
+	letter-spacing: -3px;
+	font-weight: bold;
+	 }
+
+
 #hover p:hover { background: #F0F0F0; cursor: pointer;}
 #map_canvas { height: 75% }
 
-#hover {
+#hover, #ride_form {
 height:175px;
 letter-spacing:1px;
 }
 
 
-.textfield
+#textfield
 {
-font-family:  arial, serif;
-font-size: 20px;
-font-style:normal;
-height:25px;
-width:200px;
+	font-family: 'helvetica neue', helvetica, arial, sans-serif;
+	font-size: 3em;
+	letter-spacing: -2px;
+	font-weight: normal;
+	height:1.5em;
+	width:8em;
+	position:absolute;
+	margin-top:1.8em;
+	margin-left:1em;
 }
 
 #schoolResponse {
